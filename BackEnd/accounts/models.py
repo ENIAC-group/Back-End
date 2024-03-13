@@ -1,0 +1,100 @@
+from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
+from django.core.validators import MinLengthValidator, MaxLengthValidator
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
+import datetime
+
+
+class UserManager(BaseUserManager):
+    def create_user(self , email , firstname , lastname , gender , date_of_birth, password=None ) : 
+        """
+        Creates and saves a User with the given email, 
+        data of birth and password
+        """
+        if not email: 
+            raise ValueError('User must have an email address')
+        
+        user = self.model(
+            email = self.normalize_email(email),
+            date_of_birth = date_of_birth,
+            firstname = firstname , 
+            lastname = lastname,
+            gender= gender,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self , email , firstname , lastname , gender , date_of_birth , password=None):
+        """
+        Creates and saves a superuser with the given email, birthdat
+        and password.
+        """
+
+        user = self.create_user(
+            email=email,
+            password=password,
+            date_of_birth=date_of_birth,
+            firstname = firstname , 
+            lastname = lastname,
+            gender= gender,
+        )
+
+        user.is_admin = True 
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+    
+    def get_by_natural_key(self, email):
+        return self.get(email=email)
+
+class User(AbstractBaseUser):
+    GENDER_Male = 'M'
+    GENDER_Female = 'F'
+    GENDER_CHOICES = [
+        (GENDER_Female, 'Female'),
+        (GENDER_Male, 'Male'),
+    ]
+
+    firstname = models.CharField(max_length=20 )
+    lastname = models.CharField(max_length=30 )
+    email = models.EmailField(
+        max_length= 255 , 
+        unique = True,
+    )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['date_of_birth' , 'firstname' , 'lastname' , 'gender']
+    date_of_birth= models.DateField()
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    objects = UserManager()
+    # verification_code = models.CharField(max_length=4, null=True, blank=True)
+    # verification_tries_count = models.IntegerField(default=0)
+    # last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now)
+    # has_verification_tries_reset = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.email
+
+    def has_perm(self , perm , obj=None ):
+        "Does the user have a specific permisision?"
+        return True
+    
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+    
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
+
+
+
+    
+    
