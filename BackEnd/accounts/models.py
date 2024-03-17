@@ -3,7 +3,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
-import datetime
+from datetime import datetime
 
 
 class UserManager(BaseUserManager):
@@ -71,10 +71,14 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     objects = UserManager()
-    # verification_code = models.CharField(max_length=4, null=True, blank=True)
-    # verification_tries_count = models.IntegerField(default=0)
-    # last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now)
-    # has_verification_tries_reset = models.BooleanField(default=False)
+
+
+    # email varification 
+    is_email_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=4, null=True, blank=True)
+    verification_tries_count = models.IntegerField(default=0)
+    last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now())
+    has_verification_tries_reset = models.BooleanField(default=False)
     
     def __str__(self):
         return self.email
