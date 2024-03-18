@@ -6,10 +6,14 @@ import utils.project_variables as project_variables
 from django.utils.translation import gettext_lazy as _
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  ] #, "phone_number"]
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
 
 class SignUpSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -21,7 +25,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'date_of_birth', 'password1', 'password2'  #'id' #  i do not know whether its needed or not
+        fields = ('email', 'date_of_birth', 'password1', 'password2'  , 'id' #  i do not know whether its needed or not
                     , 'gender' , 'firstname' , 'lastname') # , 'phone_number')
                     
         extra_kwargs = {
@@ -42,12 +46,10 @@ class SignUpSerializer(serializers.ModelSerializer):
             
         return str.lower(value)
     
-
     # def validate_phone_number(self, attrs):
     #     print(attrs)
     #     return attrs
     
-
     def validate_password2(self, value):
         
         if value != self.initial_data.get('password1'):
@@ -113,6 +115,7 @@ class LoginSerializer(serializers.Serializer):
         style={"input_type": "password"},
         write_only=True
     )
+
     token = serializers.CharField(
         label =_("Token"),
         read_only=True
@@ -129,16 +132,14 @@ class LoginSerializer(serializers.Serializer):
             if not user.check_password(password):
                 msg = _('Incorrect password.')
                 raise serializers.ValidationError(msg, code='authorization')
-
             if not user.is_email_verified:
                 raise serializers.ValidationError({"detail": "User is not verified."})
-
             attrs['user'] = user
         else:
             msg = _('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
-
         return attrs
+    
 
     def validate_email(self, value):
         msg = _('Email does not exist.')
