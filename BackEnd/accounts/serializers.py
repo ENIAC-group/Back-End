@@ -3,6 +3,8 @@ from accounts.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import password_validation
 import utils.project_variables as project_variables 
+from django.utils.translation import gettext_lazy as _
+
 
 class UserSerializer(serializers.Serializer):
     class Meta:
