@@ -3,11 +3,13 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
-import datetime
+from datetime import datetime
+# from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import RegexValidator
 
 
 class UserManager(BaseUserManager):
-    def create_user(self , email , firstname , lastname , gender , date_of_birth, password=None ) : 
+    def create_user(self , email , firstname , phone , lastname , gender , date_of_birth, password=None ) : 
         """
         Creates and saves a User with the given email, 
         data of birth and password
@@ -21,13 +23,14 @@ class UserManager(BaseUserManager):
             firstname = firstname , 
             lastname = lastname,
             gender= gender,
+            phone_number = phone
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self , email , firstname , lastname , gender , date_of_birth , password=None):
+    def create_superuser(self , email , firstname , phone ,lastname , gender , date_of_birth , password=None):
         """
         Creates and saves a superuser with the given email, birthdat
         and password.
@@ -40,6 +43,7 @@ class UserManager(BaseUserManager):
             firstname = firstname , 
             lastname = lastname,
             gender= gender,
+            phone=phone
         )
 
         user.is_admin = True 
@@ -65,16 +69,32 @@ class User(AbstractBaseUser):
         unique = True,
     )
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['date_of_birth' , 'firstname' , 'lastname' , 'gender']
+    # REQUIRED_FIELDS = ['password']
+    objects = UserManager()
     date_of_birth= models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    objects = UserManager()
-    # verification_code = models.CharField(max_length=4, null=True, blank=True)
-    # verification_tries_count = models.IntegerField(default=0)
-    # last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now)
-    # has_verification_tries_reset = models.BooleanField(default=False)
+    phone_number_regex = r'^\+?98[09]\d{9}$'
+    phone_number_validator = RegexValidator(
+        regex=phone_number_regex,
+        message="Phone number must be in a valid Iranian format."
+    )
+
+    phone_number = models.CharField(
+        max_length=15,  # Adjust the length as per your requirement
+        validators=[phone_number_validator],
+        blank=True,
+        null=True
+    )
+
+    # email varification 
+    is_email_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=4, null=True, blank=True)
+    verification_tries_count = models.IntegerField(default=0)
+    last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now())
+    has_verification_tries_reset = models.BooleanField(default=False)
+    
     
     def __str__(self):
         return self.email

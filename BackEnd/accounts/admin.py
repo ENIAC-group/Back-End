@@ -46,18 +46,18 @@ class UserChangeForm(forms.ModelForm):
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form= UserCreationForm
-    list_display = ('email' ,'firstname', 'lastname', 'date_of_birth' , 'is_admin' , 'is_active')   #'is_email_verified'
+    list_display = ('email' ,'firstname', 'lastname', 'date_of_birth' , 'is_admin' , 'is_active' , 'phone_number')   #'is_email_verified'
     list_filter = ('is_admin' , 'email' ,'firstname', 'lastname')
     fieldsets=(
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('date_of_birth','firstname', 'lastname' ,'gender')}),
+        ('Personal info', {'fields': ('date_of_birth','firstname', 'lastname' ,'gender' , 'phone_number')}),
         ('Permissions', {'fields': ( 'is_admin', 'is_active', )}),   #'is_email_verified'
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'date_of_birth', 'password1', 'password2', 'is_active' ),
+            'fields': ('email', 'password1', 'password2', 'is_active'  ),   # , 'date_of_birth'
         }),
     )
 
@@ -66,4 +66,3 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 admin.site.register(User, UserAdmin)
-
