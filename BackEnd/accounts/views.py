@@ -6,7 +6,7 @@ from rest_framework.response import  Response
 from rest_framework.views import APIView 
 from rest_framework.generics import CreateAPIView , GenericAPIView
 from .serializers import SignUpSerializer , UserSerializer , ActivationConfirmSerializer  ,ActivationResendSerializer \
-    ,ForgotPasswordSerializer , ResetPasswordSerializer
+    ,ForgotPasswordSerializer , ResetPasswordSerializer , LoginSerializer
 from .models import User
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
