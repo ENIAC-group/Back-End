@@ -4,10 +4,10 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import password_validation
 import utils.project_variables as project_variables 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.Serializer):
     class Meta:
         model = User
-        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id" ]
+        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  , "phone_number"]
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -20,15 +20,15 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'date_of_birth', 'password1', 'password2'   # 'id',   i do not know whether its needed or not
-                    , 'gender' , 'firstname' , 'lastname')
+        fields = ('email', 'date_of_birth', 'password1', 'password2'  #'id' #  i do not know whether its needed or not
+                    , 'gender' , 'firstname' , 'lastname' , 'phone_number')
+                    
         extra_kwargs = {
             'password1': {'write_only': True},
             'password2': {'write_only': True},
         }
     
     def validate_email(self, value):
-        print("validate email")
         user = User.objects.filter(email__iexact=value)
         if user.exists():
             user = user.first()
@@ -36,11 +36,18 @@ class SignUpSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Email already exists.")
             if user.verification_tries_count >= project_variables.MAX_VERIFICATION_TRIES:
                 raise serializers.ValidationError("You have reached the maximum number of registration tries.")
-            if user.username != self.initial_data.get('username'):
-                raise serializers.ValidationError("Email already exists.")
+            # if user.phone_number != self.initial_data.get('phone_number'):
+            #     raise serializers.ValidationError("Email already exists.")
         return str.lower(value)
     
+
+    def validate_phone_number(self, attrs):
+        print("lssssssssssssssssssssssssssssssss")
+        print(attrs)
+        return attrs
+    
     def validate_password2(self, value):
+        
         if value != self.initial_data.get('password1'):
             raise serializers.ValidationError('Passwords must match.')
         return value
@@ -61,14 +68,33 @@ class ActivationResendSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs.get('email', None)
-
         try:
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             raise serializers.ValidationError({"detail": "user does not exist."})
 
         if user.is_email_verified:
-            raise serializers.ValidationError({"detail": "user is already verified."})
+            raise serializers.ValidationError({"detail": "user with this email is already verified."})
 
         attrs['user'] = user
+        return attrs
+
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+    def validate(self, attrs):
+        new_password = attrs.get('new_password')
+        confirm_password = attrs.get('confirm_password')
+        if new_password != confirm_password:
+            raise serializers.ValidationError("New password and confirm password do not match.")
+        try:
+            validate_password(new_password)
+        except serializers.ValidationError as validation_error:
+            raise serializers.ValidationError({"new_password": validation_error})
         return attrs
