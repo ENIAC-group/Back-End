@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import  Response
 from rest_framework.views import APIView 
 from rest_framework.generics import CreateAPIView , GenericAPIView
-from .serializers import   UserSerializer   , LoginSerializer 
+from .serializers import SignUpSerializer , UserSerializer , ActivationConfirmSerializer  ,ActivationResendSerializer \
+    ,ForgotPasswordSerializer , ResetPasswordSerializer
 from .models import User
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
@@ -17,13 +18,211 @@ import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
-import random
+from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.project_variables import MAX_VERIFICATION_TRIES
 
+
+
+class SignUpView(CreateAPIView):
+    serializer_class = SignUpSerializer
+    def post(self,request ) : 
+        serializer = SignUpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        email = str.lower(validated_data['email'])
+        # verification code 
+        verification_code = str(random.randint(1000, 9999))
+        user = User.objects.filter(email__iexact = email )
+        # if user signup before and not verified
+        if user.exists() : 
+            user = user.first()
+            user.gender = validated_data['gender']
+            user.firstname = validated_data['firstname']
+            user.lastname = validated_data['lastname']
+            user.date_of_birth = validated_data['date_of_birth'] ,
+            user.verification_code = verification_code
+            user.verification_tries_count += 1
+            user.last_verification_sent = datetime.now()
+            user.save()
+        else : 
+            user = User.objects.create(
+                email = email, 
+                firstname = validated_data['firstname'],
+                lastname = validated_data['lastname'],
+                gender = validated_data['gender'],
+                date_of_birth = validated_data['date_of_birth'] ,
+                password = make_password( validated_data['password1']) ,
+                verification_code=verification_code,
+                verification_tries_count=1,
+                last_verification_sent=datetime.now(),
+            )
+            # varify email 
+        token = generate_tokens(user.id)["access"]
+        subject = 'تایید ایمیل ثبت نام'
+        show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
+        # sending email verification with thread
+        email_thread = EmailThread(email_handler, subject=subject,
+                                recipient_list=[user.email],
+                                verification_token=verification_code,
+                                registration_tries=user.verification_tries_count,
+                                show_text=show_text , 
+                                token = token )
+        
+        email_thread.start()
+        user_data = {
+            "user": UserSerializer(user).data ,
+            "message": "User created successfully. Please check your email to activate your account.",
+            "code": verification_code,
+            "url": f'{settings.WEBSITE_URL}accounts/activation_confirm/{token}/'
+        }
+        return Response(user_data, status=status.HTTP_201_CREATED)
+
+        
+class ActivationConfirmView(GenericAPIView):
+    serializer_class = ActivationConfirmSerializer
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        return render(request, 'varify_email.html')
+
+    def post(self, request, token):
+        token = self.validate_token(token)
+        if not token:
+            return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = self.get_user_from_token(token)
+        if not user:
+            return Response({'message': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.data.get('verification_code') != user.verification_code:
+            return Response({'message': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.is_email_verified = True
+        user.verification_code = None
+        user.save()
+        return Response('successfull_activation.html', status=status.HTTP_200_OK)
+
+
+    def get_user_from_token(self, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = payload.get('user_id')
+            return User.objects.filter(id=user_id).first()
+        except ExpiredSignatureError:
+            return None
+
+
+    def validate_token(self, token):
+        try:
+            jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            return token
+        except ExpiredSignatureError:
+            return None
+        except InvalidSignatureError:
+            return None
+        
+        
+class ActivationResend(GenericAPIView):
+    serializer_class = ActivationResendSerializer
+    permission_classes = []
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            subject = 'تایید ایمیل ثبت نام'
+            verification_code = str(random.randint(1000, 9999))
+            user.verification_tries_count += 1
+            user.verification_code = verification_code
+            user.last_verification_sent = datetime.now()
+            user.save()
+            show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
+            token = generate_tokens(user)["access"]
+            email_handler.send_verification_message(subject=subject,
+                                                    recipient_list=[user.email],
+                                                    verification_token=verification_code,
+                                                    registration_tries=user.verification_tries_count,
+                                                    show_text=show_text)
+            return Response({
+                "message": "email sent",
+                "url": f'{settings.WEBSITE_URL}accounts/activation-confirm/{token}',
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ForgotPassword(GenericAPIView) : 
+    serializer_class = ForgotPasswordSerializer
+    def post(self, request, *args, **kwargs) : 
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            email = str.lower(serializer.validated_data['email'])
+            users = User.objects.filter(email__iexact =email)
+            if (users.exists() ) : 
+                user = users.first()
+                subject = 'فراموشی رمز عبور'
+                verification_code = str(random.randint(1000, 9999))
+                user.verification_tries_count += 1
+                user.verification_code = verification_code
+                user.last_verification_sent = datetime.now()
+                user.save()
+                token = generate_tokens(user.id)["access"]
+                email_handler.send_forget_password_verification_message(subject=subject,
+                                                        recipient_list=[user.email],
+                                                        verification_token=verification_code,
+                                                        verification_tries=user.verification_tries_count)   
+                return Response({
+                    "message": "email sent",
+                    "url": f'{settings.WEBSITE_URL}accounts/reset_password/{token}/',
+                    "code": verification_code
+                }, status=status.HTTP_200_OK)
+            else : 
+                return Response( {'message': 'Invalid email'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResetPassword(GenericAPIView) : 
+    serializer_class = ResetPasswordSerializer
+    def post(self, request, token ) :
+        token = self.validate_token(token)
+        if not token:
+            return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data= request.data )
+        serializer.is_valid(raise_exception=True)
+        user = self.get_user_from_token(token)
+        if not user:
+            return Response({'message': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if serializer.validated_data['verification_code'] != user.verification_code:
+            return Response({'message': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+        user.verification_code = None
+        user.password = make_password( serializer.validated_data['new_password']) ,
+        user.save()
+        return Response( {"message" : "password successfully update"} , status=status.HTTP_204_NO_CONTENT)
+    
+
+    def get_user_from_token(self, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = payload.get('user_id')
+            return User.objects.filter(id=user_id).first()
+        except ExpiredSignatureError:
+            return None
+
+    def validate_token(self, token):
+        try:
+            jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            return token
+        except ExpiredSignatureError:
+            return None
+        except InvalidSignatureError:
+            return None
 
 
 class LoginView(TokenObtainPairView):
@@ -70,4 +269,3 @@ class LogoutView(APIView):
             return Response(data={'detail': 'Logged out successfully'}, status=status.HTTP_200_OK)
 
         return Response(data={'detail': 'Not logged in'}, status=status.HTTP_400_BAD_REQUEST)
-
