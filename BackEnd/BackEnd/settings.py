@@ -11,27 +11,43 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from environs import Env
+import os
+
+# Environment Variables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-#zdhi36fsv(lx#%swqp(l9)0dctgcmwqc__*6h5$9gk@sqxn-e"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+env = Env()
+env.read_env()
+
+# Setting Website URL
+WEBSITE_URL = 'http://localhost:8000/' #env.str('WEBSITE_URL')
+BASE_URL = 'http://localhost:8000/'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'eniakgroupiust@gmail.com'#env.str('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = 'otawrhfscdedswzd'# '%_giw.9?5=3aNQr'#env.str('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
+SESSION_COOKIE_DOMAIN = "http://localserver:8000"
 
 ALLOWED_HOSTS = []
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES' : [
         'rest_framework.permissions.AllowAny'
     ],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'  ,
     # 'DEFAULT_AUTHENTICATION_CLASSES' : [
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ]
@@ -47,6 +63,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts",
     "rest_framework",
+    "rest_framework_swagger",
+    "phonenumber_field",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -64,7 +83,7 @@ ROOT_URLCONF = "BackEnd.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
