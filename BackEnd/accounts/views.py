@@ -25,7 +25,7 @@ class SignUpView(CreateAPIView):
     serializer_class = SignUpSerializer
     def post(self,request ) : 
         serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=False)
+        serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
         email = str.lower(validated_data['email'])
         # verification code 
@@ -71,7 +71,7 @@ class SignUpView(CreateAPIView):
             "user": UserSerializer(user).data ,
             "message": "User created successfully. Please check your email to activate your account.",
             "code": verification_code,
-            "url": f'{settings.WEBSITE_URL}/accounts/activation_confirm/{token}/'
+            "url": f'{settings.WEBSITE_URL}accounts/activation_confirm/{token}/'
         }
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -122,7 +122,6 @@ class ActivationConfirmView(GenericAPIView):
             return None
         
         
-
 class ActivationResend(GenericAPIView):
     serializer_class = ActivationResendSerializer
     permission_classes = []
@@ -145,7 +144,7 @@ class ActivationResend(GenericAPIView):
                                                     show_text=show_text)
             return Response({
                 "message": "email sent",
-                "url": f'{settings.WEBSITE_URL}/accounts/activation-confirm/{token}',
+                "url": f'{settings.WEBSITE_URL}accounts/activation-confirm/{token}',
             }, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -156,27 +155,31 @@ class ForgotPassword(GenericAPIView) :
     def post(self, request, *args, **kwargs) : 
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data['user']
-            subject = 'فراموشی رمز عبور'
-            verification_code = str(random.randint(1000, 9999))
-            user.verification_tries_count += 1
-            user.verification_code = verification_code
-            user.last_verification_sent = datetime.now()
-            user.save()
-            show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
-            token = generate_tokens(user)["access"]
-            email_handler.send_forget_password_verification_message(subject=subject,
-                                                    recipient_list=[user.email],
-                                                    verification_token=verification_code,
-                                                    verification_tries=user.verification_tries_count)   
-            return Response({
-                "message": "email sent",
-                "url": f'{settings.WEBSITE_URL}/accounts/reset_password/{token}',
-                "code": verification_code
-            }, status=status.HTTP_200_OK)
+            email = str.lower(serializer.validated_data['email'])
+            users = User.objects.filter(email__iexact =email)
+            if (users.exists() ) : 
+                user = users.first()
+                subject = 'فراموشی رمز عبور'
+                verification_code = str(random.randint(1000, 9999))
+                user.verification_tries_count += 1
+                user.verification_code = verification_code
+                user.last_verification_sent = datetime.now()
+                user.save()
+                token = generate_tokens(user.id)["access"]
+                email_handler.send_forget_password_verification_message(subject=subject,
+                                                        recipient_list=[user.email],
+                                                        verification_token=verification_code,
+                                                        verification_tries=user.verification_tries_count)   
+                return Response({
+                    "message": "email sent",
+                    "url": f'{settings.WEBSITE_URL}accounts/reset_password/{token}/',
+                    "code": verification_code
+                }, status=status.HTTP_200_OK)
+            else : 
+                return Response( {'message': 'Invalid email'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
+
 
 class ResetPassword(GenericAPIView) : 
     serializer_class = ResetPasswordSerializer
@@ -190,12 +193,14 @@ class ResetPassword(GenericAPIView) :
         if not user:
             return Response({'message': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if request.data.get('verification_code') != user.verification_code:
+        if serializer.validated_data['verification_code'] != user.verification_code:
             return Response({'message': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
         user.verification_code = None
         user.password = make_password( serializer.validated_data['new_password']) ,
         user.save()
+        return Response( {"message" : "password successfully update"} , status=status.HTTP_204_NO_CONTENT)
     
+
     def get_user_from_token(self, token):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])

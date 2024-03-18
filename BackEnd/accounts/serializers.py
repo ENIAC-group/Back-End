@@ -7,7 +7,7 @@ import utils.project_variables as project_variables
 class UserSerializer(serializers.Serializer):
     class Meta:
         model = User
-        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  , "phone_number"]
+        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  ] #, "phone_number"]
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'date_of_birth', 'password1', 'password2'  #'id' #  i do not know whether its needed or not
-                    , 'gender' , 'firstname' , 'lastname' , 'phone_number')
+                    , 'gender' , 'firstname' , 'lastname') # , 'phone_number')
                     
         extra_kwargs = {
             'password1': {'write_only': True},
@@ -34,18 +34,19 @@ class SignUpSerializer(serializers.ModelSerializer):
             user = user.first()
             if user.is_email_verified:
                 raise serializers.ValidationError("Email already exists.")
-            if user.verification_tries_count >= project_variables.MAX_VERIFICATION_TRIES:
-                raise serializers.ValidationError("You have reached the maximum number of registration tries.")
+            # if user.verification_tries_count >= project_variables.MAX_VERIFICATION_TRIES:
+            #     raise serializers.ValidationError("You have reached the maximum number of registration tries.")
             # if user.phone_number != self.initial_data.get('phone_number'):
             #     raise serializers.ValidationError("Email already exists.")
+            
         return str.lower(value)
     
 
-    def validate_phone_number(self, attrs):
-        print("lssssssssssssssssssssssssssssssss")
-        print(attrs)
-        return attrs
+    # def validate_phone_number(self, attrs):
+    #     print(attrs)
+    #     return attrs
     
+
     def validate_password2(self, value):
         
         if value != self.initial_data.get('password1'):
@@ -88,6 +89,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
 class ResetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
+    verification_code = serializers.CharField(max_length=4, min_length=4)
+
     def validate(self, attrs):
         new_password = attrs.get('new_password')
         confirm_password = attrs.get('confirm_password')
