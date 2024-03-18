@@ -16,6 +16,7 @@ class LoginSerializer(serializers.Serializer):
     )
     password = serializers.CharField(
         label=_("password"),
+        style={"input_type": "password"},
         write_only=True
     )
     token = serializers.CharField(
