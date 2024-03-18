@@ -230,12 +230,12 @@ class LoginView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
         user = serializer.validated_data['user']
         if user is not None:
             tokens = generate_tokens(user.id)
 
-            login(request, user)
+            login(request, user,backend='django.contrib.auth.backends.ModelBackend')
 
             return Response({
                 'refresh': tokens['refresh'],
