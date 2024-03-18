@@ -142,18 +142,20 @@ class ActivationResend(GenericAPIView):
             user.last_verification_sent = datetime.now()
             user.save()
             show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
-            token = generate_tokens(user)["access"]
+            token = generate_tokens(user.id)["access"]
             email_handler.send_verification_message(subject=subject,
                                                     recipient_list=[user.email],
                                                     verification_token=verification_code,
                                                     registration_tries=user.verification_tries_count,
-                                                    show_text=show_text)
+                                                    show_text=show_text , 
+                                                    token=token)
             return Response({
                 "message": "email sent",
-                "url": f'{settings.WEBSITE_URL}accounts/activation-confirm/{token}',
+                "url": f'{settings.WEBSITE_URL}accounts/activation_confirm/{token}/',
             }, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ForgotPassword(GenericAPIView) : 
@@ -202,7 +204,8 @@ class ResetPassword(GenericAPIView) :
         if serializer.validated_data['verification_code'] != user.verification_code:
             return Response({'message': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
         user.verification_code = None
-        user.password = make_password( serializer.validated_data['new_password']) ,
+        new_password =serializer.validated_data['new_password']
+        user.set_password(new_password)
         user.save()
         return Response( {"message" : "password successfully update"} , status=status.HTTP_204_NO_CONTENT)
     
@@ -227,38 +230,35 @@ class ResetPassword(GenericAPIView) :
 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         if user is not None:
             tokens = generate_tokens(user.id)
-
-            login(request, user)
-
+            # login(request, user)
+            login(request, user, backend = 'django.contrib.auth.backends.ModelBackend')
+            user_serializer= UserSerializer( data= user)
+            user_serializer.is_valid()
+            print( user_serializer.data)
             return Response({
                 'refresh': tokens['refresh'],
                 'access': tokens['access'],
-                'user': UserSerializer(user).data,
+                'user': user_serializer.validated_data
             })
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         refresh_token = request.COOKIES.get('token')
-
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
             except Exception as e:
                 return Response(data={'detail': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-
             response = Response(data={'detail': 'Logged out successfully'}, status=status.HTTP_200_OK)
             response.delete_cookie('refresh_token')
             response.delete_cookie('access_token')
