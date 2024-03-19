@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  ] #, "phone_number"]
+        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname"  , "id"  , "phone_number" ] #, "phone_number"]
 
     def validate(self, attrs):
         return super().validate(attrs)
@@ -26,7 +26,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'date_of_birth', 'password1', 'password2'  , 'id' #  i do not know whether its needed or not
-                    , 'gender' , 'firstname' , 'lastname') # , 'phone_number')
+                    , 'gender' , 'firstname' , 'lastname' , 'phone_number') # , 'phone_number')
                     
         extra_kwargs = {
             'password1': {'write_only': True},
@@ -41,8 +41,8 @@ class SignUpSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Email already exists.")
             # if user.verification_tries_count >= project_variables.MAX_VERIFICATION_TRIES:
             #     raise serializers.ValidationError("You have reached the maximum number of registration tries.")
-            # if user.phone_number != self.initial_data.get('phone_number'):
-            #     raise serializers.ValidationError("Email already exists.")
+            if user.phone_number != self.initial_data.get('phone_number'):
+                raise serializers.ValidationError("Email already exists.")
             
         return str.lower(value)
     
