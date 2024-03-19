@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "accounts",
     "rest_framework",
     "rest_framework_swagger",
-    "phonenumber_field",
     "drf_yasg",
 ]
 
@@ -148,6 +147,6 @@ AUTH_USER_MODEL = 'accounts.User'
 AUTH_PROFILE_MODULE = 'accounts.User'
 
 AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.RemoteUserBackend',
         'django.contrib.auth.backends.ModelBackend',
+        'django.contrib.auth.backends.RemoteUserBackend',
 )

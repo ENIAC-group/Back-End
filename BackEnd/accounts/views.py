@@ -43,7 +43,8 @@ class SignUpView(CreateAPIView):
             user.gender = validated_data['gender']
             user.firstname = validated_data['firstname']
             user.lastname = validated_data['lastname']
-            user.date_of_birth = validated_data['date_of_birth'] ,
+            user.date_of_birth = validated_data['date_of_birth'] 
+            user.phone_number = validated_data['phone_number']
             user.verification_code = verification_code
             user.verification_tries_count += 1
             user.last_verification_sent = datetime.now()
@@ -56,6 +57,7 @@ class SignUpView(CreateAPIView):
                 gender = validated_data['gender'],
                 date_of_birth = validated_data['date_of_birth'] ,
                 password = make_password( validated_data['password1']) ,
+                phone_number = validated_data['phone_number'] ,
                 verification_code=verification_code,
                 verification_tries_count=1,
                 last_verification_sent=datetime.now(),
@@ -106,7 +108,7 @@ class ActivationConfirmView(GenericAPIView):
         user.is_email_verified = True
         user.verification_code = None
         user.save()
-        return Response('successfull_activation.html', status=status.HTTP_200_OK)
+        return Response({'message' : 'successfully verified'}, status=status.HTTP_200_OK)
 
 
     def get_user_from_token(self, token):

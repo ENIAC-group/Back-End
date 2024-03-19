@@ -4,12 +4,11 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
 from datetime import datetime
-# from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import RegexValidator
-
+from django.contrib.auth.hashers import make_password
 
 class UserManager(BaseUserManager):
-    def create_user(self , email , firstname , phone , lastname , gender , date_of_birth, password=None ) : 
+    def create_user(self , email , firstname , lastname , gender , date_of_birth, phone_number ,password=None) :   #phone = None 
         """
         Creates and saves a User with the given email, 
         data of birth and password
@@ -23,19 +22,19 @@ class UserManager(BaseUserManager):
             firstname = firstname , 
             lastname = lastname,
             gender= gender,
-            phone_number = phone
+            phone_number = phone_number 
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self , email , firstname , phone ,lastname , gender , date_of_birth , password=None):
+    def create_superuser(self , email , firstname ,lastname , gender , phone_number, date_of_birth , password=None):   #phone
         """
         Creates and saves a superuser with the given email, birthdat
         and password.
         """
-
+        
         user = self.create_user(
             email=email,
             password=password,
@@ -43,16 +42,22 @@ class UserManager(BaseUserManager):
             firstname = firstname , 
             lastname = lastname,
             gender= gender,
-            phone=phone
+            phone_number=phone_number 
         )
 
         user.is_admin = True 
         user.is_superuser = True
+        user.is_email_verified = True
+        user.is_active = True
         user.save(using=self._db)
         return user
     
+    def save(self, *args, **kwargs):
+        self.password = make_password(self.password)
+
     def get_by_natural_key(self, email):
         return self.get(email=email)
+
 
 class User(AbstractBaseUser):
     GENDER_Male = 'M'
@@ -69,12 +74,13 @@ class User(AbstractBaseUser):
         unique = True,
     )
     USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['password']
+    REQUIRED_FIELDS = [ 'firstname', 'lastname', 'gender', 'date_of_birth' , 'phone_number']
     objects = UserManager()
     date_of_birth= models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+
     phone_number_regex = r'^\+?98[09]\d{9}$'
     phone_number_validator = RegexValidator(
         regex=phone_number_regex,

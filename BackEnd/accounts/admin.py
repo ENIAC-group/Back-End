@@ -13,7 +13,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'date_of_birth', 'gender' , 'firstname' , 'lastname')
+        fields = ('email', 'date_of_birth', 'gender' , 'firstname' , 'lastname' , 'phone_number')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -37,7 +37,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('firstname' , 'lastname' , 'gender','email', 'password', 'date_of_birth', 'is_active', 'is_admin')
+        fields = ('firstname' , 'lastname' , 'gender','email', 'password', 'date_of_birth', 'is_active', 'is_admin' , 'phone_number')
 
     def clean_password(self):
         return self.initial["password"]
@@ -46,12 +46,12 @@ class UserChangeForm(forms.ModelForm):
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form= UserCreationForm
-    list_display = ('email' ,'firstname', 'lastname', 'date_of_birth' , 'is_admin' , 'is_active')   #'is_email_verified'   'phone_number'
-    list_filter = ('is_admin' , 'email' ,'firstname', 'lastname')
+    list_display = ('email' ,'firstname', 'lastname', 'date_of_birth' , 'is_admin' , 'is_active' , 'phone_number')   #'is_email_verified'   'phone_number'
+    list_filter = ('is_admin' , 'email' ,'firstname', 'lastname' , 'phone_number')
     fieldsets=(
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('date_of_birth','firstname', 'lastname' ,'gender' )}), ## 'phone_number'
-        ('Permissions', {'fields': ( 'is_admin', 'is_active', )}),   #'is_email_verified'
+        ('Personal info', {'fields': ('date_of_birth','firstname', 'lastname' ,'gender' ,'phone_number')}), ## 'phone_number'
+        ('Permissions', {'fields': ( 'is_admin', 'is_active','is_staff','is_email_verified' )}),   #'is_email_verified'
     )
 
     add_fieldsets = (
