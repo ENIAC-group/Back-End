@@ -3,7 +3,6 @@ from accounts.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import password_validation
 import utils.project_variables as project_variables 
-from django.utils.translation import gettext_lazy as _
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -108,16 +107,16 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 class LoginSerializer(serializers.Serializer):
     email=serializers.EmailField(
-        label=_("Email"),
+        label=("Email"),
     )
     password = serializers.CharField(
-        label=_("password"),
+        label=("password"),
         style={"input_type": "password"},
         write_only=True
     )
 
     token = serializers.CharField(
-        label =_("Token"),
+        label =("Token"),
         read_only=True
     )
 
@@ -130,19 +129,19 @@ class LoginSerializer(serializers.Serializer):
             user = User.objects.get(email__iexact=email)
 
             if not user.check_password(password):
-                msg = _('Incorrect password.')
+                msg = ('Incorrect password.')
                 raise serializers.ValidationError(msg, code='authorization')
             if not user.is_email_verified:
                 raise serializers.ValidationError({"detail": "User is not verified."})
             attrs['user'] = user
         else:
-            msg = _('Must include "email" and "password".')
+            msg = ('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
         return attrs
     
 
     def validate_email(self, value):
-        msg = _('Email does not exist.')
+        msg = ('Email does not exist.')
         user_exists = User.objects.filter(email__iexact=value).exists()
 
         if not user_exists:
