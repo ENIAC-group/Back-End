@@ -19,6 +19,7 @@ def send_verification_message(subject, recipient_list, verification_token, regis
     email.attach_alternative(html_message, "text/html" )  #"text/html")
     email.send()
 
+
 def send_forget_password_verification_message(subject, recipient_list, verification_token, verification_tries):
     context = {
         'email_verification_token': verification_token,
