@@ -7,7 +7,7 @@ from rest_framework.response import  Response
 from rest_framework.views import APIView 
 from rest_framework.generics import CreateAPIView , GenericAPIView
 from .serializers import SignUpSerializer , UserSerializer , ActivationConfirmSerializer  ,ActivationResendSerializer \
-    ,ForgotPasswordSerializer , ResetPasswordSerializer , LoginSerializer
+    ,ForgotPasswordSerializer , ResetPasswordSerializer , LoginSerializer , CompleteInfoSerializer
 from .models import User
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.project_variables import MAX_VERIFICATION_TRIES
-
+from counseling.models import Pationt 
 
 class SignUpView(CreateAPIView):
     serializer_class = SignUpSerializer
@@ -37,32 +37,17 @@ class SignUpView(CreateAPIView):
         # verification code 
         verification_code = str(random.randint(1000, 9999))
         user = User.objects.filter(email__iexact = email )
-        # if user signup before and not verified
-        if user.exists() : 
-            user = user.first()
-            user.gender = validated_data['gender']
-            user.firstname = validated_data['firstname']
-            user.lastname = validated_data['lastname']
-            user.date_of_birth = validated_data['date_of_birth'] 
-            user.phone_number = validated_data['phone_number']
-            user.verification_code = verification_code
-            user.verification_tries_count += 1
-            user.last_verification_sent = datetime.now()
-            user.save()
-        else : 
-            user = User.objects.create(
-                email = email, 
-                firstname = validated_data['firstname'],
-                lastname = validated_data['lastname'],
-                gender = validated_data['gender'],
-                date_of_birth = validated_data['date_of_birth'] ,
-                password = make_password( validated_data['password1']) ,
-                phone_number = validated_data['phone_number'] ,
-                verification_code=verification_code,
-                verification_tries_count=1,
-                last_verification_sent=datetime.now(),
-            )
-            # varify email 
+        user = User.objects.create(
+            email = email, 
+            password = make_password( validated_data['password1']) ,
+            verification_code=verification_code,
+            verification_tries_count=1,
+            last_verification_sent=datetime.now(),
+        )
+
+        # TODO   make sure it is locate in right place 
+        Pationt.objects.create( user= user )       
+        # varify email 
         token = generate_tokens(user.id)["access"]
         subject = 'تایید ایمیل ثبت نام'
         show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
@@ -82,6 +67,7 @@ class SignUpView(CreateAPIView):
             "url": f'{settings.WEBSITE_URL}accounts/activation_confirm/{token}/'
         }
         return Response(user_data, status=status.HTTP_201_CREATED)
+
 
         
 class ActivationConfirmView(GenericAPIView):
@@ -110,7 +96,6 @@ class ActivationConfirmView(GenericAPIView):
         user.save()
         return Response({'message' : 'successfully verified'}, status=status.HTTP_200_OK)
 
-
     def get_user_from_token(self, token):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -130,6 +115,7 @@ class ActivationConfirmView(GenericAPIView):
             return None
         
         
+
 class ActivationResend(GenericAPIView):
     serializer_class = ActivationResendSerializer
     permission_classes = []
@@ -249,6 +235,27 @@ class LoginView(TokenObtainPairView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CompleteInfoView(GenericAPIView) : 
+    permission_classes = [IsAuthenticated]
+    serializer_class = CompleteInfoSerializer 
+    def post( self , request ) : 
+        serializer = CompleteInfoSerializer(data=request.data )
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        email = str.lower( request.user.email)
+        user = User.objects.filter( email__iexact = email )
+        if not user.exists():
+            return Response({'message': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+        user = user.first()
+        user.firstname = validated_data["firstname"]
+        user.gender = validated_data['gender']
+        user.lastname = validated_data['lastname']
+        user.date_of_birth = validated_data['date_of_birth'] 
+        user.phone_number = validated_data['phone_number']
+        user.save()
+        return Response(data={'message' : 'successfully updated'}, status=status.HTTP_200_OK)
+
+
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request): 
@@ -269,3 +276,24 @@ class LogoutView(APIView):
             logout(request)
             return Response(data={'detail': 'Logged out successfully'}, status=status.HTTP_200_OK)
         return Response(data={'detail': 'Not logged in'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+# if user signup before and not verified
+        # if user.exists() : 
+        #     user = user.first()
+        #     user.gender = validated_data['gender']
+        #     user.firstname = validated_data['firstname']
+        #     user.lastname = validated_data['lastname']
+        #     user.date_of_birth = validated_data['date_of_birth'] 
+        #     user.phone_number = validated_data['phone_number']
+        #     user.verification_code = verification_code
+        #     user.verification_tries_count += 1
+        #     user.last_verification_sent = datetime.now()
+        #     user.save()
+        # else : 

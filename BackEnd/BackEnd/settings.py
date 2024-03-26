@@ -41,8 +41,13 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
-SESSION_COOKIE_DOMAIN = "http://localserver:8000"
 
+# SESSION_COOKIE_DOMAIN = "http://localserver:8000"
+
+SESSION_COOKIE_SECURE = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
+
+# SESSION_COOKIE_DOMAIN
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
@@ -100,6 +105,7 @@ INSTALLED_APPS = [
     "rest_framework_swagger",
     "rest_framework_simplejwt.token_blacklist",
     "drf_yasg",
+    "counseling",
 ]
 
 MIDDLEWARE = [
@@ -111,6 +117,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 ROOT_URLCONF = "BackEnd.urls"
 
