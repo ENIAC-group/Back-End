@@ -29,7 +29,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self , email , firstname ,lastname , gender , phone_number, date_of_birth , password=None):   #phone
+    def create_superuser(self , email ,password=None):   #phone  firstname ,lastname , gender , phone_number, date_of_birth , 
         """
         Creates and saves a superuser with the given email, birthdat
         and password.
@@ -38,20 +38,22 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             email=email,
             password=password,
-            date_of_birth=date_of_birth,
-            firstname = firstname , 
-            lastname = lastname,
-            gender= gender,
-            phone_number=phone_number 
+            date_of_birth="2000-3-3",
+            firstname = "admin" , 
+            lastname = "adminzadeh",
+            gender= 'B',
+            phone_number="+989999999999" 
         )
 
         user.is_admin = True 
         user.is_superuser = True
         user.is_email_verified = True
         user.is_active = True
+        user.role = User.TYPE_ADMIN
         user.save(using=self._db)
         return user
     
+
     def save(self, *args, **kwargs):
         self.password = make_password(self.password)
 
@@ -59,29 +61,42 @@ class UserManager(BaseUserManager):
         return self.get(email=email)
 
 
+
 class User(AbstractBaseUser):
     GENDER_Male = 'M'
     GENDER_Female = 'F'
+    GENDER_BOTH = 'B'
     GENDER_CHOICES = [
         (GENDER_Female, 'Female'),
         (GENDER_Male, 'Male'),
+        (GENDER_BOTH , 'Both')
     ]
 
-    firstname = models.CharField(max_length=20 )
-    lastname = models.CharField(max_length=30 )
+    TYPE_USER = "user"
+    TYPE_DOCTOR = "doctor"
+    TYPE_ADMIN = "admin"
+
+    CHOICES = (
+        (TYPE_USER , "User") , 
+        (TYPE_DOCTOR , "Doctor") , 
+        (TYPE_ADMIN , "Admin")
+    )
+
+    firstname = models.CharField(max_length=20 , blank=True, null = True )
+    lastname = models.CharField(max_length=30 , blank=True, null = True )
     email = models.EmailField(
         max_length= 255 , 
         unique = True,
     )
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [ 'firstname', 'lastname', 'gender', 'date_of_birth' , 'phone_number']
+    
     objects = UserManager()
-    date_of_birth= models.DateField()
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    date_of_birth= models.DateField(blank=True , null = True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES ,null=True ) #  default = GENDER_BOTH,
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
-    phone_number_regex = r'^\+?98[09]\d{9}$'
+    phone_number_regex = r'^(?:\+98|0)(?:\s?)9[0-9]{9}$'
     phone_number_validator = RegexValidator(
         regex=phone_number_regex,
         message="Phone number must be in a valid Iranian format."
@@ -93,7 +108,8 @@ class User(AbstractBaseUser):
         blank=True,
         null=True
     )
-
+    role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
+    
     # email varification 
     is_email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=4, null=True, blank=True)
@@ -101,6 +117,8 @@ class User(AbstractBaseUser):
     last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now())
     has_verification_tries_reset = models.BooleanField(default=False)
     
+    def get_role(self ) : 
+        return self.role
     
     def __str__(self):
         return self.email
@@ -120,7 +138,11 @@ class User(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
 
-
-
     
-    
+    # profile = GenericRelation(to=Profile, related_query_name='user')
+
+    # def get_default_profile_image(self):
+    #     if self.gender == 'M':
+    #         return 'images/profile_pics/male_default.png'
+    #     else:
+    #         return 'images/profile_pics/female_default.png'
