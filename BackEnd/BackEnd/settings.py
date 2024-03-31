@@ -41,11 +41,14 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
-
+# DEFAULT_FILE_STORAGE
 # SESSION_COOKIE_DOMAIN = "http://localserver:8000"
 
 SESSION_COOKIE_SECURE = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+
 
 # SESSION_COOKIE_DOMAIN
 ALLOWED_HOSTS = ['*']
@@ -100,10 +103,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # 'Profile.apps.SignalAppConfig',
     "accounts",
     "rest_framework",
     "rest_framework_swagger",
     "rest_framework_simplejwt.token_blacklist",
+    "Profile",
     "drf_yasg",
     "counseling",
 ]
@@ -119,8 +124,6 @@ MIDDLEWARE = [
 ]
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
 
 ROOT_URLCONF = "BackEnd.urls"
 

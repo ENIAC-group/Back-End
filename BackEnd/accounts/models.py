@@ -7,6 +7,7 @@ from datetime import datetime
 from django.core.validators import RegexValidator
 from django.contrib.auth.hashers import make_password
 
+
 class UserManager(BaseUserManager):
     def create_user(self , email , firstname , lastname , gender , date_of_birth, phone_number ,password=None) :   #phone = None 
         """
@@ -28,6 +29,11 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+    
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset()
+    
+
 
     def create_superuser(self , email ,password=None):   #phone  firstname ,lastname , gender , phone_number, date_of_birth , 
         """
