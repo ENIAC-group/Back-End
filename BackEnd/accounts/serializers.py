@@ -80,10 +80,10 @@ class ActivationResendSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError({"detail": "user does not exist."})
+            raise serializers.ValidationError({"message": "user does not exist."})
 
         if user.is_email_verified:
-            raise serializers.ValidationError({"detail": "user with this email is already verified."})
+            raise serializers.ValidationError({"message": "user with this email is already verified."})
 
         attrs['user'] = user
         return attrs
