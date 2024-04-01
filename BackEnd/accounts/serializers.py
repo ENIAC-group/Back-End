@@ -129,29 +129,31 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, attrs):
         email = attrs.get('email', None)
         password = attrs.get('password', None)
-
         if email and password:
             email = self.validate_email(email)
             user = User.objects.get(email__iexact=email)
-
+            # self.validate_password(value= password ,user= user )
             if not user.check_password(password):
-                msg = ('Incorrect password.')
-                raise serializers.ValidationError(msg, code='authorization')
+                msg = 'Incorrect password.'
+                raise serializers.ValidationError( { "message" : msg} , code='authorization')
             if not user.is_email_verified:
-                raise serializers.ValidationError({"detail": "User is not verified."})
+                raise serializers.ValidationError({"message": "User is not verified."})
             attrs['user'] = user
         else:
             msg = ('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
         return attrs
-    
 
+    # def validate_password( self , value ,user) : 
+    #     if not user.check_password(value):
+    #             msg = ('Incorrect password.')
+    #             raise serializers.ValidationError(msg, code='authorization')
+        
     def validate_email(self, value):
-        msg = ('Email does not exist.')
+        msg = 'Email does not exist.'
         user_exists = User.objects.filter(email__iexact=value).exists()
 
         if not user_exists:
-            raise serializers.ValidationError(msg)
-
+            raise serializers.ValidationError( { "message" : msg} )
         return str.lower(value)
     
