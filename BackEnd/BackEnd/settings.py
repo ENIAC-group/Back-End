@@ -103,7 +103,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # 'Profile.apps.SignalAppConfig',
+    "corsheaders",
     "accounts",
     "rest_framework",
     "rest_framework_swagger",
@@ -118,11 +118,19 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
+CORS_ALLOWED_ORIGINS = [
+        # 'CORS_ALLOW_ALL_ORIGINS',
+    "http://localhost:5173" ,
+    
+]
 
 
 ROOT_URLCONF = "BackEnd.urls"
