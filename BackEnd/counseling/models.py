@@ -23,26 +23,18 @@ class Psychiatrist(models.Model ) :
     field = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
 
     def get_default_profile_image(self):
-        # print( " in defualt image ") 
-
+    
         if self.user.gender == 'M':
-            res = settings.MEDIA_URL + 'images/doctors/profile_pics/male_default.png'
+            res =  'images/doctors/profile_pics/male_default.png'   ## settings.MEDIA_URL + 
             return res
         else:
-            res = settings.MEDIA_URL  + 'images/doctors/profile_pics/female_default.png'
+            res = 'images/doctors/profile_pics/female_default.png'
             return res
-
-    def save(self, *args, **kwargs):
-        if not self.user.role == 'doctor':
-            self.user.role = User.TYPE_DOCTOR
-            self.user.save()
-        super().save(*args, **kwargs)
-
 
     def get_profile_image(self ) :
         if  not self.image : 
             var = self.get_default_profile_image()
-            # print("var ---------------> ", var)
+            
             return var 
         else : 
             return settings.MEDIA_URL +  self.image  # settings.MEDIA_ROOT +
@@ -54,10 +46,13 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
+        print( "hereeeeeeeeeeeeeeeeeeeeeeeeeeee")
         if Psychiatrist.objects.filter(user=self.user).exists():
             raise ValidationError("A Psychiatrist object already exists for this User.")
+        if not self.user.role == 'doctor':
+            self.user.role = User.TYPE_DOCTOR
+            self.user.save()
         super().save(*args, **kwargs)
-
 
 
 # TODO add fields for pationt 
