@@ -226,13 +226,12 @@ class LoginView(TokenObtainPairView):
             tokens = generate_tokens(user.id)
             # login(request, user)
             login(request, user, backend = 'django.contrib.auth.backends.ModelBackend')
-            
             return Response({
                 'refresh': tokens['refresh'],
                 'access': tokens['access'],
                 'user': UserSerializer(user).data
             })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response( {"message" : "there is no user with this email"} , status=status.HTTP_400_BAD_REQUEST)
 
 
 class CompleteInfoView(GenericAPIView) : 

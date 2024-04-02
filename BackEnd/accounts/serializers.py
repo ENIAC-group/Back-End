@@ -80,10 +80,10 @@ class ActivationResendSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError({"detail": "user does not exist."})
+            raise serializers.ValidationError({"message": "user does not exist."})
 
         if user.is_email_verified:
-            raise serializers.ValidationError({"detail": "user with this email is already verified."})
+            raise serializers.ValidationError({"message": "user with this email is already verified."})
 
         attrs['user'] = user
         return attrs
@@ -129,29 +129,25 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, attrs):
         email = attrs.get('email', None)
         password = attrs.get('password', None)
-
         if email and password:
             email = self.validate_email(email)
             user = User.objects.get(email__iexact=email)
-
             if not user.check_password(password):
-                msg = ('Incorrect password.')
-                raise serializers.ValidationError(msg, code='authorization')
+                msg = 'Incorrect password.'
+                raise serializers.ValidationError( { "message" : msg} , code='authorization')
             if not user.is_email_verified:
-                raise serializers.ValidationError({"detail": "User is not verified."})
+                raise serializers.ValidationError({"message": "User is not verified."})
             attrs['user'] = user
         else:
             msg = ('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
         return attrs
-    
-
+        
     def validate_email(self, value):
-        msg = ('Email does not exist.')
+        msg = 'Email does not exist.'
         user_exists = User.objects.filter(email__iexact=value).exists()
 
         if not user_exists:
-            raise serializers.ValidationError(msg)
-
+            raise serializers.ValidationError( { "message" : msg} )
         return str.lower(value)
     
