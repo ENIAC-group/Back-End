@@ -31,8 +31,8 @@ env = Env()
 env.read_env()
 
 # Setting Website URL
-WEBSITE_URL = 'http://localhost:8000/' #env.str('WEBSITE_URL')
-BASE_URL = 'http://localhost:8000/'
+WEBSITE_URL = 'http://localhost:80ssss00/' #env.str('WEBSITE_URL')
+# BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'eniakgroupiust@gmail.com'#env.str('EMAIL_HOST_USER')
@@ -40,9 +40,15 @@ EMAIL_HOST_PASSWORD = 'otawrhfscdedswzd'# '%_giw.9?5=3aNQr'#env.str('EMAIL_HOST_
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
-SESSION_COOKIE_DOMAIN = "http://localserver:8000"
+# CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
 
+SESSION_COOKIE_SECURE = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+
+
+# SESSION_COOKIE_DOMAIN
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
@@ -95,11 +101,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "accounts",
     "rest_framework",
     "rest_framework_swagger",
     "rest_framework_simplejwt.token_blacklist",
+    "Profile",
     "drf_yasg",
+    "counseling",
 ]
 
 MIDDLEWARE = [
@@ -107,10 +116,20 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+CORS_ALLOWED_ORIGINS = [
+        # 'CORS_ALLOW_ALL_ORIGINS',
+    "http://localhost:5173" ,
+    
+]
+
 
 ROOT_URLCONF = "BackEnd.urls"
 
