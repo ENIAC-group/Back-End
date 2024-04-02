@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from .models import Profile
 from counseling.models import Psychiatrist
  
- 
+
 @receiver(post_save, sender=Psychiatrist ) 
 def create_profile(sender, instance, created, **kwargs):
     if created:
@@ -11,6 +11,7 @@ def create_profile(sender, instance, created, **kwargs):
         print( " sender------------->" , sender )
         Profile.objects.create(psychiatrist=instance)
   
+      
 
 @receiver(post_save, sender=Psychiatrist) 
 def save_profile(sender, instance, **kwargs):

@@ -132,7 +132,6 @@ class LoginSerializer(serializers.Serializer):
         if email and password:
             email = self.validate_email(email)
             user = User.objects.get(email__iexact=email)
-            # self.validate_password(value= password ,user= user )
             if not user.check_password(password):
                 msg = 'Incorrect password.'
                 raise serializers.ValidationError( { "message" : msg} , code='authorization')
@@ -143,11 +142,6 @@ class LoginSerializer(serializers.Serializer):
             msg = ('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
         return attrs
-
-    # def validate_password( self , value ,user) : 
-    #     if not user.check_password(value):
-    #             msg = ('Incorrect password.')
-    #             raise serializers.ValidationError(msg, code='authorization')
         
     def validate_email(self, value):
         msg = 'Email does not exist.'

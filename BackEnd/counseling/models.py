@@ -19,14 +19,18 @@ class Psychiatrist(models.Model ) :
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE )
-    image = models.ImageField(upload_to='images/doctors/profile_pics', null=True, default='images/doctors/profile_pics/default.png')
+    image = models.ImageField(upload_to='images/doctors/profile_pics', null=True,blank=True )  #, default='images/doctors/profile_pics/default.png')
     field = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
 
     def get_default_profile_image(self):
-        if self.usesr.gender == 'M':
-            return 'images/doctors/profile_pics/male_default.png'
+        # print( " in defualt image ") 
+
+        if self.user.gender == 'M':
+            res = settings.MEDIA_URL + 'images/doctors/profile_pics/male_default.png'
+            return res
         else:
-            return 'images/doctors/profile_pics/female_default.png'
+            res = settings.MEDIA_URL  + 'images/doctors/profile_pics/female_default.png'
+            return res
 
     def save(self, *args, **kwargs):
         if not self.user.role == 'doctor':
@@ -34,22 +38,36 @@ class Psychiatrist(models.Model ) :
             self.user.save()
         super().save(*args, **kwargs)
 
-    @property
+
     def get_profile_image(self ) :
         if  not self.image : 
-            return self.get_default_profile_image()
+            var = self.get_default_profile_image()
+            # print("var ---------------> ", var)
+            return var 
         else : 
-            return self.image.url   # settings.MEDIA_ROOT +
+            return settings.MEDIA_URL +  self.image  # settings.MEDIA_ROOT +
 
     def get_fullname(self) :
-        return self.user.firstname + " " + self.user.lastname 
+        return str(self.user.firstname) + " " + str(self.user.lastname)
 
     def save(self, *args, **kwargs):
-        # Check if there's already a Psychiatrist object associated with this User
+        """
+        Check if there's already a Psychiatrist object associated with this User
+        """ 
         if Psychiatrist.objects.filter(user=self.user).exists():
             raise ValidationError("A Psychiatrist object already exists for this User.")
         super().save(*args, **kwargs)
 
+
+
 # TODO add fields for pationt 
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        """
+        Check if there's already a Pationt object associated with this User
+        """ 
+        if Pationt.objects.filter(user=self.user).exists():
+            raise ValidationError("A Pationt object already exists for this User.")
+        super().save(*args, **kwargs)

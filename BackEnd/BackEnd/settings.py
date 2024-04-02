@@ -32,7 +32,7 @@ env.read_env()
 
 # Setting Website URL
 WEBSITE_URL = 'http://localhost:8000/' #env.str('WEBSITE_URL')
-BASE_URL = 'http://localhost:8000/'
+# BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'eniakgroupiust@gmail.com'#env.str('EMAIL_HOST_USER')
@@ -41,13 +41,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
-# DEFAULT_FILE_STORAGE
-# SESSION_COOKIE_DOMAIN = "http://localserver:8000"
 
 SESSION_COOKIE_SECURE = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_URL = "media/"
 
 
 # SESSION_COOKIE_DOMAIN
