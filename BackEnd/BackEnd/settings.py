@@ -45,7 +45,7 @@ REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
 SESSION_COOKIE_SECURE = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
 MEDIA_URL = "media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
 # SESSION_COOKIE_DOMAIN
@@ -165,7 +165,6 @@ WSGI_APPLICATION = "BackEnd.wsgi.application"
 DATABASES = {
 
     'default': {
-
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'TherapyDB',
         'USER': 'postgres',

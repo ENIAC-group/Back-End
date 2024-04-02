@@ -34,11 +34,12 @@ class Psychiatrist(models.Model ) :
     def get_profile_image(self ) :
         if  not self.image : 
             var = self.get_default_profile_image()
-            
             return var 
         else : 
-            return settings.MEDIA_URL +  self.image  # settings.MEDIA_ROOT +
-
+            VAR = settings.MEDIA_URL +  str(self.image  )
+            print(VAR)
+            return VAR
+        
     def get_fullname(self) :
         return str(self.user.firstname) + " " + str(self.user.lastname)
 
@@ -46,7 +47,7 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
-        print( "hereeeeeeeeeeeeeeeeeeeeeeeeeeee")
+        # print( "hereeeeeeeeeeeeeeeeeeeeeeeeeeee")
         if Psychiatrist.objects.filter(user=self.user).exists():
             raise ValidationError("A Psychiatrist object already exists for this User.")
         if not self.user.role == 'doctor':
