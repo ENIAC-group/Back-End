@@ -114,7 +114,7 @@ class User(AbstractBaseUser):
         blank=True,
         null=True
     )
-    role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
+    role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER,unique=True)
     
     # email varification 
     is_email_verified = models.BooleanField(default=False)
@@ -152,3 +152,7 @@ class User(AbstractBaseUser):
     #         return 'images/profile_pics/male_default.png'
     #     else:
     #         return 'images/profile_pics/female_default.png'
+
+# class Role(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='role')
+#     role = models.CharField(max_length=255, choices=User.CHOICES, default=User.TYPE_USER)

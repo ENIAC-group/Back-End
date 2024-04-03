@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError 
 
+
 class Psychiatrist(models.Model ) : 
     TYPE_INDIVIDUAL = 'individual'
     TYPE_KIDS = "kids"
@@ -47,16 +48,18 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
-        # print( "hereeeeeeeeeeeeeeeeeeeeeeeeeeee")
         if Psychiatrist.objects.filter(user=self.user).exists():
             raise ValidationError("A Psychiatrist object already exists for this User.")
+        if Pationt.objects.filter(user=self.user).exists():
+            pationt = Pationt.objects.get(user=self.user)
+            pationt.delete()
         if not self.user.role == 'doctor':
             self.user.role = User.TYPE_DOCTOR
             self.user.save()
         super().save(*args, **kwargs)
 
 
-# TODO add fields for pationt 
+
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -67,3 +70,6 @@ class Pationt( models.Model ) :
         if Pationt.objects.filter(user=self.user).exists():
             raise ValidationError("A Pationt object already exists for this User.")
         super().save(*args, **kwargs)
+
+
+
