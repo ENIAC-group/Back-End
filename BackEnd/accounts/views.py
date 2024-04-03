@@ -7,7 +7,7 @@ from rest_framework.response import  Response
 from rest_framework.views import APIView 
 from rest_framework.generics import CreateAPIView , GenericAPIView
 from .serializers import SignUpSerializer , UserSerializer , ActivationConfirmSerializer  ,ActivationResendSerializer \
-    ,ForgotPasswordSerializer , ResetPasswordSerializer , LoginSerializer , CompleteInfoSerializer
+    ,ForgotPasswordSerializer , ResetPasswordSerializer , LoginSerializer , CompleteInfoSerializer ,ChangePasswordSerializer
 from .models import User
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
@@ -144,6 +144,29 @@ class ActivationResend(GenericAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ChangePasswordView(GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = request.user
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+
+            # Check if the current password matches the user's actual password
+            if not user.check_password(old_password):
+                return Response({'error': 'Invalid current password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Change the user's password
+            user.set_password(new_password)
+            user.save()
+
+            return Response({'message': 'Password changed successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ForgotPassword(GenericAPIView) : 
