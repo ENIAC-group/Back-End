@@ -140,6 +140,7 @@ class ActivationResend(GenericAPIView):
             return Response({
                 "message": "email sent",
                 "url": f'{settings.WEBSITE_URL}accounts/activation_confirm/{token}/',
+                "code" : verification_code
             }, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -153,6 +154,7 @@ class ChangePasswordView(GenericAPIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = request.user
+            print(user.email )
             old_password = serializer.validated_data['old_password']
             new_password = serializer.validated_data['new_password']
 
