@@ -257,7 +257,25 @@ class LoginView(TokenObtainPairView):
                 'user': UserSerializer(user).data
             })
         return Response( {"message" : "there is no user with this email"} , status=status.HTTP_400_BAD_REQUEST)
+    
 
+
+class RetrieveUserData(GenericAPIView) : 
+    permission_classes = [IsAuthenticated]
+    def get(self , request  ) : 
+        print( request.headers["Authorization"] )
+        if not hasattr(request, 'user'):
+            return Response({'message': 'request does not have proper authentication tokens'}, status=status.HTTP_400_BAD_REQUEST)
+        email = str.lower(request.user.email)
+        user = User.objects.filter( email__iexact = email )
+        if not user.exists() :
+            return Response({'message': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+        user = user.first()
+        data = {
+            "user" : UserSerializer(user).data
+        }
+        return Response( data= data , status=status.HTTP_200_OK)
+        
 
 class CompleteInfoView(GenericAPIView) : 
     permission_classes = [IsAuthenticated]
@@ -280,6 +298,7 @@ class CompleteInfoView(GenericAPIView) :
         return Response(data={'message' : 'successfully updated'}, status=status.HTTP_200_OK)
 
 
+    
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request): 
@@ -302,22 +321,3 @@ class LogoutView(APIView):
         return Response(data={'detail': 'Not logged in'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-
-
-
-# if user signup before and not verified
-        # if user.exists() : 
-        #     user = user.first()
-        #     user.gender = validated_data['gender']
-        #     user.firstname = validated_data['firstname']
-        #     user.lastname = validated_data['lastname']
-        #     user.date_of_birth = validated_data['date_of_birth'] 
-        #     user.phone_number = validated_data['phone_number']
-        #     user.verification_code = verification_code
-        #     user.verification_tries_count += 1
-        #     user.last_verification_sent = datetime.now()
-        #     user.save()
-        # else : 
