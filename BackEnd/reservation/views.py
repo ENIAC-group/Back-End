@@ -53,9 +53,11 @@ class ReservationView(viewsets.ModelViewSet ) :
         
 
     def retrieve(self, request, *args, **kwargs):
-        
+        # serializer = 
+        # start_date = 
         return super().retrieve(request, *args, **kwargs)
     
+
 
 
     # def update(self, request, *args, **kwargs):

@@ -6,8 +6,8 @@ from django.core import exceptions as exception
 from .models import Reservation 
 from datetime import date
 
-class ReserveSerializer(serializers.Serializer ) : 
 
+class ReserveSerializer(serializers.Serializer ) : 
     class Meta : 
         model = Reservation 
         fields = ["day" , "type" , "date" , "time" , "id"]
@@ -18,3 +18,7 @@ class ReserveSerializer(serializers.Serializer ) :
             return serializers.ValidationError("date is not accessable")
         return attrs
         
+
+class RetrieveDays( serializers.Serializer ) : 
+    pass
+    
