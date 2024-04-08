@@ -48,9 +48,11 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
+        if self.user.role == 'doctor' : 
+            return super().save(*args, **kwargs)
         if Psychiatrist.objects.filter(user=self.user).exists():
             raise ValidationError("A Psychiatrist object already exists for this User.")
-        if Pationt.objects.filter(user=self.user).exists():
+        if Pationt.objects.filter(user=self.user).exists() :
             pationt = Pationt.objects.get(user=self.user)
             pationt.delete()
         if not self.user.role == 'doctor':
@@ -62,6 +64,7 @@ class Psychiatrist(models.Model ) :
 
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # psychiatrist = models.ManyToManyField(Psychiatrist , through="Reservation" )
 
     def save(self, *args, **kwargs):
         """

@@ -109,6 +109,7 @@ INSTALLED_APPS = [
     "Profile",
     "drf_yasg",
     "counseling",
+    "reservation",
 ]
 
 MIDDLEWARE = [
