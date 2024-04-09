@@ -17,8 +17,12 @@ class ReserveSerializer(serializers.Serializer ) :
         if date.today > attrs : 
             return serializers.ValidationError("date is not accessable")
         return attrs
-        
-
-class RetrieveDays( serializers.Serializer ) : 
-    pass
     
+class DaySerializer(serializers.Serializer) : 
+    date = serializers.DateField()    
+    doctor_id = serializers.IntegerField()
+    
+class BetweenDatesSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    doctor_id = serializers.IntegerField()

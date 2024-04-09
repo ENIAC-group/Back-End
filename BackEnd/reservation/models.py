@@ -26,7 +26,6 @@ class Reservation(models.Model) :
     type = models.CharField(choices=RESERVE_CHOICES)
     day = models.CharField(max_length=10, choices=DAY_CHOICES , blank=True  )
 
-
     class Meta:
         unique_together = ['date', 'time']
 
@@ -40,8 +39,8 @@ class Reservation(models.Model) :
             5 : 'شنبه' , 
             6 : 'یکشنبه' 
         }
+
         if not self.day: 
             day_num = date.today().weekday()
-            self.date = day_dict[day_num]
-
+            self.day = day_dict[day_num]
         return super().save()
