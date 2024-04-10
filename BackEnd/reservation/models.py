@@ -23,7 +23,7 @@ class Reservation(models.Model) :
     pationt = models.ForeignKey(Pationt, on_delete=models.CASCADE, related_name='pationt_reservations')
     date = models.DateField()
     time = models.TimeField()
-    type = models.CharField(choices=RESERVE_CHOICES)
+    type = models.CharField(max_length=15 ,choices=RESERVE_CHOICES)
     day = models.CharField(max_length=10, choices=DAY_CHOICES , blank=True  )
 
     class Meta:
