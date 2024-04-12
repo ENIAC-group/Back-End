@@ -17,8 +17,8 @@ import datetime
 from datetime import timedelta
 
 # Environment Variables
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "counseling",
     "reservation",
+    "TherapyTests",
 ]
 
 MIDDLEWARE = [
