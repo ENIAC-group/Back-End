@@ -109,7 +109,8 @@ INSTALLED_APPS = [
     "Profile",
     "drf_yasg",
     "counseling",
-    "reservation",
+    "django_tgbot",
+    "telegrambot",
 ]
 
 MIDDLEWARE = [
