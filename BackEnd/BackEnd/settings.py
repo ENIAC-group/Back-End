@@ -49,7 +49,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
 # SESSION_COOKIE_DOMAIN
-ALLOWED_HOSTS = ['*' ,'127.0.0.1' ,'84bf-5-62-211-211.ngrok-free.app']
+ALLOWED_HOSTS = ['*' ,'127.0.0.1' ,'cb3f-37-156-157-110.ngrok-free.app']
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES' : [
@@ -109,7 +109,8 @@ INSTALLED_APPS = [
     "Profile",
     "drf_yasg",
     "counseling",
-    "django_tgbot"
+    "django_tgbot",
+    "telegrambot",
 ]
 
 MIDDLEWARE = [
