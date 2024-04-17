@@ -20,7 +20,7 @@ def send_verification_message(subject, recipient_list, verification_token, regis
     email.send()
 
 
-def send_forget_password_verification_message(subject, recipient_list, verification_token, verification_tries):
+def send_forget_password_verification_message(subject, recipient_list, verification_token, verification_tries=None):
     context = {
         'email_verification_token': verification_token,
         # 'remaining_text': remaining_text,
@@ -30,4 +30,7 @@ def send_forget_password_verification_message(subject, recipient_list, verificat
     email = EmailMultiAlternatives(subject, '', EMAIL_HOST, recipient_list)
     email.attach_alternative(html_message, "text/html")
     email.send()
+
+def send_telegram_account_verification_message(subject, recipient_list, verification_token):
+    send_forget_password_verification_message( subject= subject , recipient_list= recipient_list , verification_token=verification_token )
 

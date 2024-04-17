@@ -21,7 +21,6 @@ class Profile(models.Model):
         self.name = self.determine_name(self.name)
         self.profile_type = self.determine_profile_type()
         self.image = self.determine_image()
-        print(self.image)
         super().save(*args, **kwargs)
 
 

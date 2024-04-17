@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("accounts", "0004_alter_user_last_verification_sent"),
+        ("accounts", "0005_alter_user_last_verification_sent"),
     ]
 
     operations = [
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name="last_verification_sent",
             field=models.DateTimeField(
                 blank=True,
-                default=datetime.datetime(2024, 4, 16, 5, 52, 27, 638776),
+                default=datetime.datetime(2024, 4, 16, 5, 52, 54, 649665),
                 null=True,
             ),
         ),

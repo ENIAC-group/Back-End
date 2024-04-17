@@ -4,7 +4,7 @@ from accounts.models import User
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError 
-
+from telegrambot.models import TelegramAccount
 
 class Psychiatrist(models.Model ) : 
     TYPE_INDIVIDUAL = 'individual'
@@ -18,7 +18,9 @@ class Psychiatrist(models.Model ) :
         (TYPE_KIDS , "Kids") , 
         (TYPE_TEEN , "Teen") 
     )
+    telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True ,blank=True )
 
+    #  telegram account = models.one to one ( telegram account )
     user = models.ForeignKey(User, on_delete=models.CASCADE )
     image = models.ImageField(upload_to='images/doctors/profile_pics', null=True,blank=True )  #, default='images/doctors/profile_pics/default.png')
     field = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
@@ -64,8 +66,7 @@ class Psychiatrist(models.Model ) :
 
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # psychiatrist = models.ManyToManyField(Psychiatrist , through="Reservation" )
-
+    telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True , blank=True ) 
     def save(self, *args, **kwargs):
         """
         Check if there's already a Pationt object associated with this User
