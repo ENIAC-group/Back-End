@@ -1,4 +1,25 @@
-#  create mbti tests 
+
+def GlasserResults(data ) : 
+    # data = {
+    #     1 : {
+    #         "category" : 2 , 
+    #         "res" : 4
+    #     },
+    #     2 : {
+    #         "category" : 2 , 
+    #         "res" : 4
+    #     }
+    # }
+
+    categories_score = {}
+    for value in data.values() : 
+        if value["category"] not in categories_score.keys() :     
+            categories_score[ value["category"]] = value["res"] 
+        else : 
+            categories_score[ value["category"]] += value["res"] 
+    return categories_score 
+
+    
 def GetMBTIresults(data, gender ) : 
     colomn1 = [ data[7*i + 1] for i in range(10)]   
     colomn2 = [ data[7*i + 2] for i in range(10)]   
