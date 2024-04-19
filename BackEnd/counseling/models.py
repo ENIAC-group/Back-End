@@ -39,7 +39,7 @@ class Psychiatrist(models.Model ) :
             var = self.get_default_profile_image()
             return var 
         else : 
-            VAR = settings.MEDIA_URL +  str(self.image  )
+            VAR =   str(self.image  )  #settings.MEDIA_URL +
             print(VAR)
             return VAR
         
