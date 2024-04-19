@@ -31,7 +31,7 @@ env = Env()
 env.read_env()
 
 # Setting Website URL
-WEBSITE_URL = 'http://localhost:80ssss00/' #env.str('WEBSITE_URL')
+WEBSITE_URL = 'http://localhost:8000/' #env.str('WEBSITE_URL')
 # BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "counseling",
     "reservation",
+    "GoogleMeet",
 ]
 
 MIDDLEWARE = [
@@ -122,6 +123,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "oauth_demo.middleware.oauth.OAuthMiddleware",
 ]
 
 

@@ -25,6 +25,7 @@ class Reservation(models.Model) :
     time = models.TimeField()
     type = models.CharField(choices=RESERVE_CHOICES)
     day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    MeetingLink= models.CharField(max_length=100,blank=True, null=True)
 
     class Meta:
         unique_together = ['date', 'time']
