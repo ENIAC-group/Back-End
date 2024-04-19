@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from BackEnd.settings import EMAIL_HOST
+from BackEnd.settings import EMAIL_HOST,EMAIL_HOST_USER
 from . import project_variables
 import json
 
@@ -32,12 +32,15 @@ def send_forget_password_verification_message(subject, recipient_list, verificat
     email.send()
 
 
-def send_GoogleMeet_Link(subject, recipient_list,link ):
+def send_GoogleMeet_Link(subject,recipient_list,psychiatrist_name,appointment_date,appointment_time,link ):
     context = {
-        'GoogleMeetLink':link
-    }
+    'GoogleMeetLink':link,
+    'psychiatrist_name': psychiatrist_name,  
+    'appointment_date': appointment_date,
+    'appointment_time': appointment_time,
+}
     html_message= render_to_string('GoogleMeetLink.html',context)
-    email=EmailMultiAlternatives(subject,'',EMAIL_HOST,recipient_list)
+    email=EmailMultiAlternatives(subject,'',EMAIL_HOST_USER,recipient_list)
     email.attach_alternative(html_message,"text/html")
     email.send()
     
