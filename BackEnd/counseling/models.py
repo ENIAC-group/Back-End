@@ -21,7 +21,7 @@ class Psychiatrist(models.Model ) :
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True ,blank=True )
 
     #  telegram account = models.one to one ( telegram account )
-    user = models.ForeignKey(User, on_delete=models.CASCADE )
+    user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
     image = models.ImageField(upload_to='images/doctors/profile_pics', null=True,blank=True )  #, default='images/doctors/profile_pics/default.png')
     field = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
 
@@ -50,13 +50,8 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
-        if self.user.role == 'doctor' : 
-            return super().save(*args, **kwargs)
-        if Psychiatrist.objects.filter(user=self.user).exists():
-            raise ValidationError("A Psychiatrist object already exists for this User.")
         if Pationt.objects.filter(user=self.user).exists() :
-            pationt = Pationt.objects.get(user=self.user)
-            pationt.delete()
+            raise ValidationError("a patient could not be register as a doctor")
         if not self.user.role == 'doctor':
             self.user.role = User.TYPE_DOCTOR
             self.user.save()
@@ -65,15 +60,19 @@ class Psychiatrist(models.Model ) :
 
 
 class Pationt( models.Model ) : 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True , blank=True ) 
     def save(self, *args, **kwargs):
         """
         Check if there's already a Pationt object associated with this User
         """ 
-        if Pationt.objects.filter(user=self.user).exists():
-            raise ValidationError("A Pationt object already exists for this User.")
-        super().save(*args, **kwargs)
+        # if Pationt.objects.filter(user=self.user).exists() and self.user.role == User.TYPE_USER :
+        #     return super().save(*args, **kwargs)    
+        # if Pationt.objects.filter(user=self.user).exists() :
+        #     raise ValidationError("A Pationt object already exists for this User.")
+        if Psychiatrist.objects.filter(user=self.user).exists() :
+            raise ValidationError("a doctor could not be register as a patient")
+        return super().save(*args, **kwargs)
 
 
 

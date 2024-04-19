@@ -4,19 +4,29 @@ from counseling.models import Psychiatrist , Pationt
 from datetime import date
 
 class Reservation(models.Model) : 
+    DAY0 = 'شنبه'
+    DAY1 = 'یکشنبه'
+    DAY2 = 'دوشنبه'
+    DAY3 = 'سه‌شنبه'
+    DAY4 = 'چهارشنبه'
+    DAY5 = 'پنج‌شنبه'
+    DAY6 = 'جمعه'
+
     DAY_CHOICES = [
-        ('شنبه', 'شنبه'),
-        ('یک‌شنبه', 'یک‌شنبه'),
-        ('دو‌شنبه', 'دو‌شنبه'),
-        ('سه‌شنبه', 'سه‌شنبه'),
-        ('چهار‌شنبه', 'چهار‌شنبه'),
-        ('پنج‌شنبه', 'پنج‌شنبه'),
-        ('جمعه', 'جمعه'),
+        (DAY0 , 'شنبه' ),
+        ( DAY1, 'یک‌شنبه'),
+        ( DAY2 ,'دو‌شنبه'),
+        (DAY3 ,'سه‌شنبه'),
+        (DAY4 ,'چهار‌شنبه'),
+        (DAY5 , 'پنج‌شنبه'),
+        (DAY6 ,'جمعه')
     ]
 
+    REMOTE = 'مجازی'
+    INPERSON = 'حضوری'
     RESERVE_CHOICES = [
-        ('حضوری' , 'حضوری') ,
-        ( 'مجازی' , 'مجازی')
+        (INPERSON , 'حضوری') ,
+        ( REMOTE , 'مجازی')
     ]
     
     psychiatrist = models.ForeignKey(Psychiatrist, on_delete=models.CASCADE, related_name='psychiatrist_reservations')
@@ -27,7 +37,7 @@ class Reservation(models.Model) :
     day = models.CharField(max_length=10, choices=DAY_CHOICES , blank=True  )
 
     class Meta:
-        unique_together = ['date', 'time']
+        unique_together = ['date', 'time' , 'pationt' , 'psychiatrist']
 
     def save(self, *args, **kwargs) :
         day_dict = {
@@ -42,5 +52,18 @@ class Reservation(models.Model) :
 
         if not self.day: 
             day_num = date.today().weekday()
-            self.day = day_dict[day_num]
+            if day_dict[day_num] == self.DAY0 : 
+                self.day = self.DAY0
+            elif day_dict[day_num] == self.DAY1 : 
+                self.day = self.DAY1
+            elif day_dict[day_num] == self.DAY2 : 
+                self.day = self.DAY2
+            elif day_dict[day_num] == self.DAY3 : 
+                self.day = self.DAY3
+            elif day_dict[day_num] == self.DAY4 : 
+                self.day = self.DAY4
+            elif day_dict[day_num] == self.DAY5 : 
+                self.day = self.DAY5
+            else : 
+                self.day = self.DAY6
         return super().save()

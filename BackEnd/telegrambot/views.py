@@ -35,11 +35,11 @@ def telegram_bot(request):
 def handle_update(update):
     chat_id = update['message']['chat']['id']
     text = update['message']['text']
-    
+    print( "chat id ----------------> " ,  chat_id )
     if text == "/start":
         handle_start_command(chat_id)
     elif text == "/verify":
-        tel_chat = TelegramAccount.objects.filter( chat_id = chat_id )
+        tel_chat = TelegramAccount.objects.filter( chat_id = chat_id ).first()
         if tel_chat : 
             if tel_chat.is_varify : 
                 send_message("sendMessage", {
@@ -67,11 +67,7 @@ def handle_verify_command(chat_id):
 def handle_other_commands(chat_id ,text  ):
     match_email = re.search(email_pattern, text)
     match_code = re.search(code_pattern, text)
-
-    if match_email:
-        email = match_email.group(1)
-        print("email ------> " , email )
-        user = User.objects.filter(email__iexact = email.strip() ).first()
+    if match_email or match_code : 
         tel_chat = TelegramAccount.objects.filter( chat_id = chat_id )
         if tel_chat : 
             if tel_chat.first().is_varify : 
@@ -80,6 +76,11 @@ def handle_other_commands(chat_id ,text  ):
                 'text': 'این اکانت قبلا تایید شده.'   
                 })
                 return Response({"message" : "this email does not exist."} , status=status.HTTP_400_BAD_REQUEST) 
+            
+    if match_email:
+        email = match_email.group(1)
+        print("email ------> " , email )
+        user = User.objects.filter(email__iexact = email.strip() ).first()
             
         if not user : 
             send_message("sendMessage", {
@@ -107,24 +108,28 @@ def handle_other_commands(chat_id ,text  ):
                 )
 
                 if user.role == "doctor" : 
-                    doctor = Psychiatrist.objects.filter( user == user )
+                    doctor = Psychiatrist.objects.filter( user = user )
                     if not doctor : 
                         return Response({"message" : "there is no doctor with this email ."} , status=status.HTTP_400_BAD_REQUEST) 
                     doctor = doctor.first()
                     doctor.telegramAccount = tel_account
                 elif user.role == "user" : 
-                    patient = Pationt.objects.filter( user == user )
+                    patient = Pationt.objects.filter( user = user )
+                    print("117")
                     if not patient : 
                         return Response({"message" : "there is no patient with this email ."} , status=status.HTTP_400_BAD_REQUEST) 
                     patient = patient.first()
+                    print( patient.pk)
                     patient.telegramAccount = tel_account
+                    patient.save()
 
+                    print("118")
                 email_handler.send_telegram_account_verification_message( 
                     subject='تایید اکانت تلگرام' , 
                     recipient_list=[user.email ] , 
                     verification_token= verification_code , 
                 )
-                
+                print("128")
                 send_message("sendMessage", {
                     'chat_id': chat_id,
                     'text': 'کد تایید ارسال شده به ایمیلتان را به صورت روبه رو وارد کنید\n code/ <کد>.'   
