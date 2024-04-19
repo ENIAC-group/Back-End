@@ -102,17 +102,23 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "telegrambot", 
     "accounts",
+    "reservation",
     "rest_framework",
     "rest_framework_swagger",
     "rest_framework_simplejwt.token_blacklist",
     "Profile",
     "drf_yasg",
     "counseling",
+    # "django_tgbot",
+    "background_task",
+    'django.contrib.sites' ,
     "reservation",
     "TherapyTests",
     "telegrambot",
 ]
+SITE_ID = 1 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -197,7 +203,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
