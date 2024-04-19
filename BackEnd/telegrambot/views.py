@@ -4,7 +4,7 @@ import requests
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from .models import TelegramAccount
-from .credentials import TELEGRAM_API_URL, URL , TOKEN
+from .credentials import TELEGRAM_API_URL, URL , TOKEN , WEB_HOOK_URL
 from accounts.models import User 
 from counseling.models import Pationt, Psychiatrist
 import utils.email as email_handler 
@@ -162,6 +162,11 @@ def handle_other_commands(chat_id ,text  ):
             'chat_id': chat_id,
             'text': 'این پیام پشتیبانی نمیشود'  
         })
+
+
+def setwebhook(request) : 
+    if request.method == 'GET' : 
+        return requests.get(url=WEB_HOOK_URL )
 
 
 def send_message(method, data):

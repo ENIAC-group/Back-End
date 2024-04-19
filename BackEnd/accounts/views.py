@@ -262,6 +262,7 @@ class LoginView(TokenObtainPairView):
 
 class RetrieveUserData(GenericAPIView) : 
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
     def get(self , request  ) : 
         print( request.headers["Authorization"] )
         if not hasattr(request, 'user'):
