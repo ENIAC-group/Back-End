@@ -7,16 +7,16 @@ from django.core.exceptions import ValidationError
 from telegrambot.models import TelegramAccount
 
 class Psychiatrist(models.Model ) : 
-    TYPE_INDIVIDUAL = 'individual'
-    TYPE_KIDS = "kids"
-    TYPE_COUPLES = "couples"
-    TYPE_TEEN  = "teen"
+    TYPE_INDIVIDUAL = "فردی"
+    TYPE_KIDS =  "کودک"
+    TYPE_COUPLES = "زوج"
+    TYPE_TEEN  = "نوجوان"
     TYPE_USER = "defualt"
     CHOICES = (
-        (TYPE_INDIVIDUAL , "Individual") , 
-        (TYPE_COUPLES , "Couples") , 
-        (TYPE_KIDS , "Kids") , 
-        (TYPE_TEEN , "Teen") 
+        (TYPE_INDIVIDUAL , "فردی") , 
+        (TYPE_COUPLES , "زوج") , 
+        (TYPE_KIDS , "کودک") , 
+        (TYPE_TEEN , "نوجوان") 
     )
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True ,blank=True )
 

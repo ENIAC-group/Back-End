@@ -17,8 +17,8 @@ import datetime
 from datetime import timedelta
 
 # Environment Variables
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -114,6 +114,9 @@ INSTALLED_APPS = [
     # "django_tgbot",
     "background_task",
     'django.contrib.sites' ,
+    "reservation",
+    "TherapyTests",
+    "telegrambot",
 ]
 SITE_ID = 1 
 
