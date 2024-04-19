@@ -8,7 +8,6 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
 
-
 class DoctorProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = DoctorProfileSerializer
@@ -22,3 +21,5 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({"error": "profile_type parameter is required"}, status=400)
+
+

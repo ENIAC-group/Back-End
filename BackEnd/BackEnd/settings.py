@@ -17,8 +17,8 @@ import datetime
 from datetime import timedelta
 
 # Environment Variables
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -109,9 +109,14 @@ INSTALLED_APPS = [
     "Profile",
     "drf_yasg",
     "counseling",
+    "background_task",
+    'django.contrib.sites' ,
     "reservation",
     "GoogleMeet",
+    "TherapyTests",
+    "telegrambot",
 ]
+SITE_ID = 1 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -161,7 +166,7 @@ WSGI_APPLICATION = "BackEnd.wsgi.application"
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",,,,,,,,,,
 #     }
 # }
 
@@ -197,7 +202,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 

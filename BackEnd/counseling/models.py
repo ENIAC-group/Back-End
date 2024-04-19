@@ -4,22 +4,24 @@ from accounts.models import User
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError 
-
+from telegrambot.models import TelegramAccount
 
 class Psychiatrist(models.Model ) : 
-    TYPE_INDIVIDUAL = 'individual'
-    TYPE_KIDS = "kids"
-    TYPE_COUPLES = "couples"
-    TYPE_TEEN  = "teen"
+    TYPE_INDIVIDUAL = "فردی"
+    TYPE_KIDS =  "کودک"
+    TYPE_COUPLES = "زوج"
+    TYPE_TEEN  = "نوجوان"
     TYPE_USER = "defualt"
     CHOICES = (
-        (TYPE_INDIVIDUAL , "Individual") , 
-        (TYPE_COUPLES , "Couples") , 
-        (TYPE_KIDS , "Kids") , 
-        (TYPE_TEEN , "Teen") 
+        (TYPE_INDIVIDUAL , "فردی") , 
+        (TYPE_COUPLES , "زوج") , 
+        (TYPE_KIDS , "کودک") , 
+        (TYPE_TEEN , "نوجوان") 
     )
+    telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True ,blank=True )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE )
+    #  telegram account = models.one to one ( telegram account )
+    user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
     image = models.ImageField(upload_to='images/doctors/profile_pics', null=True,blank=True )  #, default='images/doctors/profile_pics/default.png')
     field = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
 
@@ -48,13 +50,8 @@ class Psychiatrist(models.Model ) :
         """
         Check if there's already a Psychiatrist object associated with this User
         """ 
-        if self.user.role == 'doctor' : 
-            return super().save(*args, **kwargs)
-        if Psychiatrist.objects.filter(user=self.user).exists():
-            raise ValidationError("A Psychiatrist object already exists for this User.")
         if Pationt.objects.filter(user=self.user).exists() :
-            pationt = Pationt.objects.get(user=self.user)
-            pationt.delete()
+            raise ValidationError("a patient could not be register as a doctor")
         if not self.user.role == 'doctor':
             self.user.role = User.TYPE_DOCTOR
             self.user.save()
@@ -63,16 +60,19 @@ class Psychiatrist(models.Model ) :
 
 
 class Pationt( models.Model ) : 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # psychiatrist = models.ManyToManyField(Psychiatrist , through="Reservation" )
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
+    telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True , blank=True ) 
     def save(self, *args, **kwargs):
         """
         Check if there's already a Pationt object associated with this User
         """ 
-        if Pationt.objects.filter(user=self.user).exists():
-            raise ValidationError("A Pationt object already exists for this User.")
-        super().save(*args, **kwargs)
+        # if Pationt.objects.filter(user=self.user).exists() and self.user.role == User.TYPE_USER :
+        #     return super().save(*args, **kwargs)    
+        # if Pationt.objects.filter(user=self.user).exists() :
+        #     raise ValidationError("A Pationt object already exists for this User.")
+        if Psychiatrist.objects.filter(user=self.user).exists() :
+            raise ValidationError("a doctor could not be register as a patient")
+        return super().save(*args, **kwargs)
 
 
 

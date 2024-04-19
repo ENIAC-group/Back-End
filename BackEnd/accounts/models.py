@@ -114,8 +114,9 @@ class User(AbstractBaseUser):
         blank=True,
         null=True
     )
-    role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER)
+
     
+    role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER )
     # email varification 
     is_email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=4, null=True, blank=True)
@@ -145,14 +146,3 @@ class User(AbstractBaseUser):
         return self.is_admin
 
     
-    # profile = GenericRelation(to=Profile, related_query_name='user')
-
-    # def get_default_profile_image(self):
-    #     if self.gender == 'M':
-    #         return 'images/profile_pics/male_default.png'
-    #     else:
-    #         return 'images/profile_pics/female_default.png'
-
-# class Role(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='role')
-#     role = models.CharField(max_length=255, choices=User.CHOICES, default=User.TYPE_USER)
