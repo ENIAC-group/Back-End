@@ -7,4 +7,7 @@ class DoctorCountSerializer(serializers.Serializer):
 class PationtCountSerializer(serializers.Serializer):
     Pationt_count = serializers.IntegerField()
 
+class ReservationCountSerializer(serializers.Serializer):
+    reservation_count=serializers.IntegerField()
+
 

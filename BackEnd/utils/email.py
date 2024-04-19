@@ -31,6 +31,18 @@ def send_forget_password_verification_message(subject, recipient_list, verificat
     email.attach_alternative(html_message, "text/html")
     email.send()
 
+
+def send_GoogleMeet_Link(subject, recipient_list,link ):
+    context = {
+        'GoogleMeetLink':link
+    }
+    html_message= render_to_string('GoogleMeetLink.html',context)
+    email=EmailMultiAlternatives(subject,'',EMAIL_HOST,recipient_list)
+    email.attach_alternative(html_message,"text/html")
+    email.send()
+    
+
 def send_telegram_account_verification_message(subject, recipient_list, verification_token):
     send_forget_password_verification_message( subject= subject , recipient_list= recipient_list , verification_token=verification_token )
+
 

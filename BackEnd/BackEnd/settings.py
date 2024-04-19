@@ -109,10 +109,10 @@ INSTALLED_APPS = [
     "Profile",
     "drf_yasg",
     "counseling",
-    # "django_tgbot",
     "background_task",
     'django.contrib.sites' ,
     "reservation",
+    "GoogleMeet",
     "TherapyTests",
     "telegrambot",
 ]
@@ -128,6 +128,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "oauth_demo.middleware.oauth.OAuthMiddleware",
 ]
 
 

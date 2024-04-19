@@ -114,6 +114,7 @@ class User(AbstractBaseUser):
         blank=True,
         null=True
     )
+
     
     role = models.CharField( max_length=255, choices=CHOICES , default=TYPE_USER )
     # email varification 
