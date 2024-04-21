@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -11,8 +11,58 @@
     <p>Appointment Date: {{ appointment_date }}</p>
     <p>Appointment Time: {{ appointment_time }}</p>
     <p>Please use the following Google Meet link to join the appointment:</p>
-    <a href="{{ google_meet_link }}">Join Google Meet</a>
+    <a href="{{ GoogleMeetLink }}">Join Google Meet</a>
     <br>
     <p>Thank you.</p>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لینک جلسه گوگل میت</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    h2 {
+      color: #333333;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #666666;
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: #ffffff;
+      background-color: #007bff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>جزئیات جلسه</h2>
+  <p>کاربر گرامی</p>
+  <p> دارید {{ psychiatrist_name }} شما یک جلسه مجازی با دکتر </p>
+  <p> {{ appointment_date }}:تاریخ جلسه </p>
+  <p> {{ appointment_time }}:زمان جلسه</p>
+  <p>برای شرکت در جلسه از لینک زیر استفاده کنید</p>
+  <a href="{{ GoogleMeetLink }}">شرکت در جلسه گوگل میت</a>
+  <br>
+  <p>    </p>
+  <p>با تشکر</p>
 </body>
 </html>

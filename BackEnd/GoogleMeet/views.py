@@ -56,6 +56,10 @@ class GoogleMeetAPIView(APIView):
                 patient = reservation.pationt
             except(Reservation.DoesNotExist):
                 return Response({"error": "Psychiatrist or Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+            # if request.user == psychiatrist.user:
+            #     organizer = True
+            # else:
+            #     organizer = False
 
             event = {
                 "summary": f"Appointment with Dr.{psychiatrist.user.lastname}",
@@ -69,6 +73,7 @@ class GoogleMeetAPIView(APIView):
                 },
                 "start": {"dateTime": str(reservation.date) + "T" + str(reservation.time), "timeZone": "UTC"},
                 "end": {"dateTime": str(reservation.date) + "T" + str(reservation.time), "timeZone": "UTC"},
+                # "organizer" :{"email": psychiatrist.user.email, "responseStatus": "accepted"},
                 "attendees": [
                     {"email": psychiatrist.user.email, "responseStatus": "accepted", "organizer": True},
                     {"email": patient.user.email, "responseStatus": "accepted"}
@@ -89,7 +94,8 @@ class GoogleMeetAPIView(APIView):
                 reservation.save()
                 email_subject = "Reservation Confirmation"
                 email_recipient = patient.user.email
-                email_handler.send_GoogleMeet_Link(email_subject, [email_recipient], reservation.MeetingLink)
+                email_handler.send_GoogleMeet_Link(email_subject, [email_recipient],reservation.psychiatrist.user.lastname,
+                                                   reservation.date,reservation.time, reservation.MeetingLink)
                 return Response(inserted_event, status=status.HTTP_201_CREATED)
             except HttpError as error:
                 print(f"Error in inserting calendar event: {error}")
