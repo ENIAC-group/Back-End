@@ -7,22 +7,41 @@ from .models import Reservation
 from datetime import date
 
 
-class ReserveSerializer(serializers.Serializer ) : 
+class ReserveSerializer(serializers.ModelSerializer ) : 
     class Meta : 
         model = Reservation 
-        fields = ["day" , "type" , "date" , "time" , "id"]
+        fields = ["day" , "type" , "date" , "time" , "id" , "psychiatrist"]
 
+    def validate(self, attrs):
+        return super().validate(attrs)    
 
-    def validate_date(self, attrs):
-        if date.today > attrs : 
-            return serializers.ValidationError("date is not accessable")
-        return attrs
-    
+class CreateReserveSerializer(serializers.ModelSerializer): 
+    doctor_id = serializers.IntegerField()
+    class Meta : 
+        model = Reservation 
+        fields = [ "type" , "date" , "time" , "doctor_id" , "id"]
+
+    def validate(self, attrs):
+        return super().validate(attrs)    
+   
+
 class DaySerializer(serializers.Serializer) : 
     date = serializers.DateField()    
     doctor_id = serializers.IntegerField()
-    
-class BetweenDatesSerializer(serializers.Serializer):
+    class Meta : 
+        model = Reservation 
+        fields = ["date" , "doctor_id"]
+    def validate(self, attrs):
+        return super().validate(attrs)    
+   
+class BetweenDatesSerializer(serializers.ModelSerializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     doctor_id = serializers.IntegerField()
+
+    class Meta : 
+        model = Reservation 
+        fields = ["start_date" , "end_date" , "doctor_id"]
+        
+    def validate(self, attrs):
+        return super().validate(attrs)    
