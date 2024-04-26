@@ -23,7 +23,8 @@ class CreateReserveSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         return super().validate(attrs)    
-   
+    
+    # def validate_date(self ,attrs )
 
 class DaySerializer(serializers.Serializer) : 
     date = serializers.DateField()    
