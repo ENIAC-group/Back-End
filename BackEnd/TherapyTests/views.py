@@ -5,10 +5,109 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from utils.therapy_tests import GetMBTIresults ,GlasserResults
 from counseling.models import Pationt 
-from .models import TherapyTests , GlasserTest 
+from .models import TherapyTests , GlasserTest , MedicalRecord , TreatementHistory
 from rest_framework import status 
 import json 
 from django.http.request import QueryDict
+from .serializer import MedicalRecordSerializer
+from django.forms.models import model_to_dict
+# https://www.youtube.com/watch?v=P2_j1P51dNI&list=RD1mZhwXMl8vc&index=27
+
+class MedicalRecordView(viewsets.ModelViewSet ) : 
+    permission_classes = [IsAuthenticated]
+    queryset = MedicalRecord.objects.all()
+    http_method_names = ['get','post','retrieve','put','patch']
+    serializer_class = MedicalRecordSerializer
+    def create(self , request ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user ).first()
+        serializer = self.serializer_class(data= request.data )
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.stored_validated_data 
+        treatementHistory1 = None 
+        treatementHistory2 = None 
+        treatementHistory3 = None 
+        if 'treatementHistory1' in validated_data.keys() : 
+            treatementHistory1 = validated_data.get('treatementHistory1')
+            tr1 = TreatementHistory.objects.create(
+                end_date = treatementHistory1['end_date'] , 
+                length = treatementHistory1['length'], 
+                is_finished = treatementHistory1['is_finished'] , 
+                reason_to_leave = treatementHistory1['reason_to_leave'] , 
+                approach = treatementHistory1['approach'], 
+                special_drugs = treatementHistory1['special_drugs']
+            )
+            treatementHistory1 = tr1
+        if 'treatementHistory2' in validated_data.keys() : 
+            treatementHistory2 = validated_data.get('treatementHistory2')
+            tr2 = TreatementHistory.objects.create(
+                end_date = treatementHistory2['end_date'] , 
+                length = treatementHistory2['length'] , 
+                is_finished = treatementHistory2['is_finished'], 
+                reason_to_leave = treatementHistory2['reason_to_leave'], 
+                approach = treatementHistory2['approach'], 
+                special_drugs = treatementHistory2['special_drugs']
+            )
+            treatementHistory2 = tr2
+
+        if 'treatementHistory3' in validated_data.keys() : 
+            treatementHistory3 = validated_data.get("treatementHistory3")
+            tr3 = TreatementHistory.objects.create(
+                end_date = treatementHistory3['end_date'], 
+                length = treatementHistory3['length'] , 
+                is_finished = treatementHistory3['is_finished'], 
+                reason_to_leave = treatementHistory3['reason_to_leave'], 
+                approach = treatementHistory3['approach'], 
+                special_drugs = treatementHistory3['special_drugs']
+            )
+            treatementHistory3 = tr3
+
+        medical_record = MedicalRecord.objects.create(
+            pationt = pationt , 
+            child_num = validated_data.get('child_num') , 
+            family_history= validated_data.get('family_history')  , 
+            nationalID = validated_data.get('nationalID') , 
+            treatementHistory1 = treatementHistory1 , 
+            treatementHistory2 = treatementHistory2 , 
+            treatementHistory3 = treatementHistory3
+        )
+     
+        oi_dict = model_to_dict(medical_record)
+        oi_serialized = json.dumps(oi_dict)
+        data = {
+            "medical_record" : oi_serialized , 
+            "message" : "record has been successfully created."
+        }
+        return Response(data , status=status.HTTP_201_CREATED)
+    
+        
+    
+    def retrieve(self , request ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user).first()
+        record = self.queryset.filter( pationt = pationt )
+        if not record.exists() : 
+            return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
+        oi = record.first() 
+        oi_dict = model_to_dict(oi)
+        oi_serialized = json.dumps(oi_dict)
+        data= {
+            "record" : oi_serialized
+        }
+       
+        return Response(data= data , status=status.HTTP_200_OK )
+    
+    
+    def delete(self , request  , id ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user).first()
+        record = self.queryset.filter( pationt = pationt ).first()
+        if not record.exists() : 
+            return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
+        record.delete()
+        return Response({"message" : "record deleted successfully"} , status=status.HTTP_204_NO_CONTENT )
+
+
 
 class ThrepayTestsView(viewsets.ModelViewSet ) : 
     permission_classes = [IsAuthenticated]
@@ -29,35 +128,41 @@ class GlasserTestView(viewsets.ModelViewSet ) :
     def create( self, request , *args , **kwargs ) : 
         req_data = {}
         d =  request.data["data"] 
+        user = request.user
         data = json.loads(d)
         for key in data.keys() : 
-            print(data[key])
             req_data[key] = data[key]
             data[key]
-        print( req_data )
         if not req_data : 
             return Response({"message" : "test's results could not be empty!!!"} , status=status.HTTP_400_BAD_REQUEST)
         categories = GlasserResults( data=req_data )
-        glasser = GlasserTest.objects.create(
-            love = categories["love"] , 
-            survive = categories["survive"] , 
-            freedom = categories["freedom"] , 
-            power = categories["power"] , 
-            fun = categories["fun"]
-        )
         user = request.user
         pationt = Pationt.objects.filter(user = user).first()
         old_test = TherapyTests.objects.filter( pationt = pationt ).first()
-        if old_test : 
+
+        if not old_test : 
+            old_test = TherapyTests.objects.create( pationt =pationt )
+        
+        if not old_test.glasserTest : 
+            glasser = GlasserTest.objects.create(
+                love = categories["love"] , 
+                survive = categories["survive"] , 
+                freedom = categories["freedom"] , 
+                power = categories["power"] , 
+                fun = categories["fun"]
+            )
             old_test.glasserTest = glasser
             old_test.save()
-            return Response( {'message' : 'test`s results was successfullly updated'} , status=status.HTTP_200_OK )
-        else : 
-            test = TherapyTests.objects.create( 
-                pationt = pationt ,
-                glasserTest = glasser 
-            )
-            return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK ) 
+            return Response( {'message' : 'test`s results was successfullly registerd'} , status=status.HTTP_200_OK ) 
+        else :  
+                glasser = old_test.glasserTest 
+                glasser.love = categories["love"] , 
+                glasser.survive = categories["survive"] , 
+                glasser.freedom = categories["freedom"] , 
+                glasser.power = categories["power"] , 
+                glasser.fun = categories["fun"]
+                glasser.save()    
+                return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK ) 
                
 
     def retrieve(self, request, *args, **kwargs):
@@ -98,8 +203,6 @@ class GetMBTItest(viewsets.ModelViewSet) :
     def retrieve(self, request, *args, **kwargs):
         user = request.user
         pationt = Pationt.objects.filter(user = user ).first()
-        print(pationt)
-        # mbti = pationt.therapytests 
         mbti = TherapyTests.objects.filter( pationt = pationt ).first()
         return Response( {"type" : mbti.MBTItest} , status=status.HTTP_200_OK )
 

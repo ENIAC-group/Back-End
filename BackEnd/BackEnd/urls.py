@@ -41,12 +41,12 @@ urlpatterns = [
     path("accounts/" , include("accounts.urls")),
     path("HomePage/" , include("HomePage.urls")),
     path("reserve/" ,include("reservation.urls") ),
-    path("GoogleMeet/",include("GoogleMeet.urls")),
+    # path("GoogleMeet/",include("GoogleMeet.urls")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('profile/' , include("Profile.urls")) , 
     path('telegrambot/' , include("telegrambot.urls")), 
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('TherapyTests/' , include("TherapyTests.urls")),
+    path('Patient/' , include("TherapyTests.urls")),
 ]
 
 

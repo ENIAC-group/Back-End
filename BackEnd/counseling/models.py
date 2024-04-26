@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError 
 from telegrambot.models import TelegramAccount
+# from TherapyTests.models import TherapyTests
+import datetime
 
 class Psychiatrist(models.Model ) : 
     TYPE_INDIVIDUAL = "فردی"
@@ -58,10 +60,14 @@ class Psychiatrist(models.Model ) :
         super().save(*args, **kwargs)
 
 
-
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True , blank=True ) 
+
+    def get_fullname(self) :
+        return str(self.user.firstname) + " " + str(self.user.lastname)
+    
+    
     def save(self, *args, **kwargs):
         """
         Check if there's already a Pationt object associated with this User
@@ -73,6 +79,4 @@ class Pationt( models.Model ) :
         if Psychiatrist.objects.filter(user=self.user).exists() :
             raise ValidationError("a doctor could not be register as a patient")
         return super().save(*args, **kwargs)
-
-
-
+    

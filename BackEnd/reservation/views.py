@@ -11,7 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import date
 
 
-
 class ReservationView(viewsets.ModelViewSet ) : 
     """
     A viewset for reservation that provides `create()`, `retrieve()`, `update()`,
@@ -33,11 +32,10 @@ class ReservationView(viewsets.ModelViewSet ) :
             date = serializer.validated_data["date"] , 
             type = serializer.validated_data["type"] , 
             time = serializer.validated_data["time"] , 
-            day = serializer.validated_data["day"] ,
+            # day = serializer.validated_data["day"] ,
             psychiatrist = doctor , 
             Pationt = pationt 
         )
-
         response = {
             "reserve" : ReserveSerializer(reserve).data ,
             "message" : "reservation successfully created"
@@ -54,7 +52,6 @@ class ReservationView(viewsets.ModelViewSet ) :
         except Reservation.DoesNotExist:
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
         
-    
     def list_month(self, request):
         queryset = Reservation.objects.all()
         month = request.data.get('month')
