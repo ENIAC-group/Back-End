@@ -107,22 +107,21 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
         print("data 2222  : " , data )
         return super().validate_empty_values(data)
     
-    def create(self, validated_data):
-        print("in creaet methoooooooooooooooooood ")
-        treatement_history1 = validated_data.pop('treatementHistory1')
-        treatement_history2 = validated_data.pop('treatementHistory2')
-        treatement_history3 = validated_data.pop("treatementHistory3")
-        medical_record = MedicalRecord.objects.create(**validated_data)
-        if treatement_history1 : 
-            tr1 = TreatementHistory.objects.create(**treatement_history1)
-            medical_record.treatementHistory3 = tr1
-        if treatement_history2 : 
-            tr2 = TreatementHistory.objects.create(**treatement_history2)
-            medical_record.treatementHistory3 = tr2
-        if treatement_history3 : 
-            tr3 = TreatementHistory.objects.create(**treatement_history3)
-            medical_record.treatementHistory3 = tr3
-        return medical_record
+    # def create(self, validated_data):
+    #     treatement_history1 = validated_data.pop('treatementHistory1')
+    #     treatement_history2 = validated_data.pop('treatementHistory2')
+    #     treatement_history3 = validated_data.pop("treatementHistory3")
+    #     medical_record = MedicalRecord.objects.create(**validated_data)
+    #     if treatement_history1 : 
+    #         tr1 = TreatementHistory.objects.create(**treatement_history1)
+    #         medical_record.treatementHistory3 = tr1
+    #     if treatement_history2 : 
+    #         tr2 = TreatementHistory.objects.create(**treatement_history2)
+    #         medical_record.treatementHistory3 = tr2
+    #     if treatement_history3 : 
+    #         tr3 = TreatementHistory.objects.create(**treatement_history3)
+    #         medical_record.treatementHistory3 = tr3
+    #     return medical_record
 
 
     # def update(self, instance, validated_data):

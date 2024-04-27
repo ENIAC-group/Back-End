@@ -16,7 +16,7 @@ from django.forms.models import model_to_dict
 class MedicalRecordView(viewsets.ModelViewSet ) : 
     permission_classes = [IsAuthenticated]
     queryset = MedicalRecord.objects.all()
-    http_method_names = ['get','post','retrieve','put','patch']
+    http_method_names = ['get','post','retrieve','put','patch' , 'delete']
     serializer_class = MedicalRecordSerializer
     def create(self , request ) : 
         user = request.user 
@@ -80,7 +80,107 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
         }
         return Response(data , status=status.HTTP_201_CREATED)
     
+
+    def update(self , request ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user ).first()
+        serializer = self.serializer_class(data= request.data )
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.stored_validated_data 
+        treatementHistory1 = None 
+        treatementHistory2 = None 
+        treatementHistory3 = None 
+        old_record = MedicalRecord.objects.filter(pationt = pationt )
+
+        if not old_record.exists() : 
+            return Response({"message" : "this patient has not create a record yet."} , status=status.HTTP_400_BAD_REQUEST )
         
+        old_record = old_record.first()
+
+        if 'treatementHistory1' in validated_data.keys() : 
+            treatementHistory1 = validated_data.get('treatementHistory1')
+            if not old_record.treatementHistory1 : 
+                tr1 = TreatementHistory.objects.create(
+                    end_date = treatementHistory1['end_date'] , 
+                    length = treatementHistory1['length'], 
+                    is_finished = treatementHistory1['is_finished'] , 
+                    reason_to_leave = treatementHistory1['reason_to_leave'] , 
+                    approach = treatementHistory1['approach'], 
+                    special_drugs = treatementHistory1['special_drugs']
+                )
+                old_record.treatementHistory1 = tr1
+            else : 
+                old_record.treatementHistory1.end_date = treatementHistory1['end_date'] 
+                old_record.treatementHistory1.length = treatementHistory1['length']
+                old_record.treatementHistory1.is_finished = treatementHistory1['is_finished'] 
+                old_record.treatementHistory1.reason_to_leave = treatementHistory1['reason_to_leave'] 
+                old_record.treatementHistory1.approach = treatementHistory1['approach']
+                old_record.treatementHistory1.special_drugs = treatementHistory1['special_drugs']
+            #     tr1 = old_record.treatementHistory1
+            # treatementHistory1 = tr1
+            old_record.treatementHistory1.save()
+
+        if 'treatementHistory2' in validated_data.keys() : 
+            treatementHistory2 = validated_data.get('treatementHistory2')
+            if not old_record.treatementHistory2 : 
+                tr2 = TreatementHistory.objects.create(
+                    end_date = treatementHistory2['end_date'] , 
+                    length = treatementHistory2['length'], 
+                    is_finished = treatementHistory2['is_finished'] , 
+                    reason_to_leave = treatementHistory2['reason_to_leave'] , 
+                    approach = treatementHistory2['approach'], 
+                    special_drugs = treatementHistory2['special_drugs']
+                )
+                old_record.treatementHistory2 = tr2 
+            else : 
+                old_record.treatementHistory2.end_date = treatementHistory2['end_date']
+                old_record.treatementHistory2.length = treatementHistory2['length']
+                old_record.treatementHistory2.is_finished = treatementHistory2['is_finished'] 
+                old_record.treatementHistory2.reason_to_leave = treatementHistory2['reason_to_leave'] 
+                old_record.treatementHistory2.approach = treatementHistory2['approach']
+                old_record.treatementHistory2.special_drugs = treatementHistory2['special_drugs']
+            #     tr2 = old_record.treatementHistory2
+
+            old_record.treatementHistory2.save()
+            # treatementHistory2 = tr2
+
+        if 'treatementHistory3' in validated_data.keys() : 
+            treatementHistory3 = validated_data.get('treatementHistory3')
+            if not old_record.treatementHistory3 : 
+                tr3 = TreatementHistory.objects.create(
+                    end_date = treatementHistory2['end_date'] , 
+                    length = treatementHistory2['length'], 
+                    is_finished = treatementHistory2['is_finished'] , 
+                    reason_to_leave = treatementHistory2['reason_to_leave'] , 
+                    approach = treatementHistory2['approach'], 
+                    special_drugs = treatementHistory2['special_drugs']
+                )
+                old_record.treatementHistory3 = tr3 
+            else : 
+                old_record.treatementHistory3.end_date = treatementHistory3['end_date'] 
+                old_record.treatementHistory3.length = treatementHistory3['length']
+                old_record.treatementHistory3.is_finished = treatementHistory3['is_finished']
+                old_record.treatementHistory3.reason_to_leave = treatementHistory3['reason_to_leave'] 
+                old_record.treatementHistory3.approach = treatementHistory3['approach']
+                old_record.treatementHistory3.special_drugs = treatementHistory3['special_drugs']
+            old_record.treatementHistory3.save()
+
+        old_record.pationt = pationt 
+        old_record.child_num = validated_data.get('child_num') 
+        old_record.family_history= validated_data.get('family_history')  
+        old_record.nationalID = validated_data.get('nationalID') 
+        old_record.save()
+        
+        oi_dict = model_to_dict(old_record)
+        oi_serialized = json.dumps(oi_dict)
+        data = {
+            "medical_record" : oi_serialized , 
+            "message" : "record has been successfully updated."
+        }
+
+        return Response(data , status=status.HTTP_200_OK )
+    
+
     
     def retrieve(self , request ) : 
         user = request.user 
@@ -90,23 +190,43 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
             return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
         oi = record.first() 
         oi_dict = model_to_dict(oi)
-        oi_serialized = json.dumps(oi_dict)
+        
+        if "treatementHistory3" in oi_dict :
+            id = oi_dict["treatementHistory3"] 
+            tre = TreatementHistory.objects.filter( id = id ).first()
+            if tre : 
+                oi_dict["treatementHistory3"] = model_to_dict(tre)
+    
+        if "treatementHistory1" in oi_dict :
+            id = oi_dict["treatementHistory1"] 
+            tre = TreatementHistory.objects.filter( id = id ).first()
+            if tre : 
+                oi_dict["treatementHistory1"] = model_to_dict(tre)
+
+        if "treatementHistory2" in oi_dict :
+            id = oi_dict["treatementHistory2"] 
+            tre = TreatementHistory.objects.filter( id = id ).first()
+            if tre : 
+                oi_dict["treatementHistory2"] = model_to_dict(tre)
+
+        # oi_serialized = json.dumps(oi_dict)
         data= {
-            "record" : oi_serialized
+            "record" : oi_dict
         }
        
         return Response(data= data , status=status.HTTP_200_OK )
     
     
-    def delete(self , request  , id ) : 
+    def delete(self , request ,id ) : 
         user = request.user 
-        pationt = Pationt.objects.filter(user = user).first()
-        record = self.queryset.filter( pationt = pationt ).first()
-        if not record.exists() : 
+        pationt = Pationt.objects.filter(user =user  ).first()
+        if not pationt : 
+            return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
+        record = self.queryset.filter( id = id ).first()
+        if not record : 
             return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
         record.delete()
         return Response({"message" : "record deleted successfully"} , status=status.HTTP_204_NO_CONTENT )
-
 
 
 class ThrepayTestsView(viewsets.ModelViewSet ) : 
@@ -123,7 +243,7 @@ class ThrepayTestsView(viewsets.ModelViewSet ) :
         return Response( {"TherapTests" : test} , status=status.HTTP_200_OK )
 
 
-class GlasserTestView(viewsets.ModelViewSet ) : 
+class GlasserTestView(viewsets.ModelViewSet) : 
     permission_classes = [IsAuthenticated]
     def create( self, request , *args , **kwargs ) : 
         req_data = {}

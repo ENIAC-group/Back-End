@@ -73,11 +73,13 @@ class MedicalRecord(models.Model) :
         super().save(*args, **kwargs)
 
     def determine_gender(self ) : 
+        gender = ''
         if self.pationt.user.gender == 'F' :
-            self.gender = self.GENDER_Female
+            gender = self.GENDER_Female
         else : 
-             self.gender = self.GENDER_Male
-
+            gender = self.GENDER_Male
+        return gender 
+    
     def determine_name(self):
         return self.pationt.get_fullname()
         
