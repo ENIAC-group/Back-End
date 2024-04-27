@@ -8,7 +8,7 @@ from .serializer import *
 from .models import Reservation
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import date
+from datetime import date , timedelta
 
 
 
@@ -64,7 +64,13 @@ class ReservationView(viewsets.ModelViewSet ) :
         queryset = Reservation.objects.all()
         month = request.data.get('month')
         year = request.data.get('year')
-        queryset = queryset.filter(date__year=year, date__month=month)
+        docotor_id = request.data.get('doctor_id')
+        docotor = Psychiatrist.objects.filter( id = docotor_id)
+        if not docotor.exists() : 
+            return Response({"message" : 'there is not doctor with this id '} , status=status.HTTP_400_BAD_REQUEST)
+        docotor = docotor.first()
+        queryset = queryset.filter(date__year=year, date__month=month , psychiatrist = docotor)
+        print("here*******************************************************")
         serializer = ReserveSerializer(queryset, many=True)
         return Response(serializer.data , status=status.HTTP_200_OK)
     
@@ -79,14 +85,19 @@ class ReservationView(viewsets.ModelViewSet ) :
         #     5 : 'پنج‌شنبه' , 
         #     6 : 'جمعه'  
         # }
+
         serializer = DaySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         date1 = serializer.validated_data['date']
         doctor = serializer.validated_data['doctor_id']
-        day = (date1.weekday() + 2)%7 
-        saturday = date( day= date1.day- day , month=date1.month , year=date1.year)
-        thirsday = date( day= saturday.day+5 , month=saturday.month , year=saturday.year)
-        reservations = Reservation.objects.filter(date__range=[saturday, thirsday], psychiatrist=doctor)
+        day = (date1.weekday() + 4 )%7 
+        saturday = date( day= date1.day  , month=date1.month , year=date1.year) - timedelta(days=day ) 
+        thirsday = date( day= saturday.day , month=saturday.month , year=saturday.year) + timedelta(days=5)
+        
+        reservations = Reservation.objects.filter( psychiatrist = doctor)
+        print(reservations )
+        reservations = reservations.filter(date__range=[str(saturday) , str(thirsday) ])
+        print([str(saturday) , str(thirsday) ])
         serializer = ReserveSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
