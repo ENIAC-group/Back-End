@@ -10,6 +10,7 @@ from rest_framework import status
 import json 
 from django.http.request import QueryDict
 
+
 class ThrepayTestsView(viewsets.ModelViewSet ) : 
     permission_classes = [IsAuthenticated]
     def get( self , request ) : 
@@ -51,13 +52,21 @@ class GlasserTestView(viewsets.ModelViewSet ) :
         if old_test : 
             old_test.glasserTest = glasser
             old_test.save()
-            return Response( {'message' : 'test`s results was successfullly updated'} , status=status.HTTP_200_OK )
+            data = {
+                'message' : 'test`s results was successfullly updated' ,   
+                "result" :  categories
+            }
+            return Response( data = data , status=status.HTTP_200_OK )
         else : 
             test = TherapyTests.objects.create( 
                 pationt = pationt ,
                 glasserTest = glasser 
             )
-            return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK ) 
+            data = {
+                'message' : 'test`s results was successfullly registered' ,   
+                "result" : categories
+            }
+            return Response(data=data  , status=status.HTTP_200_OK ) 
                
 
     def retrieve(self, request, *args, **kwargs):
@@ -86,13 +95,21 @@ class GetMBTItest(viewsets.ModelViewSet) :
         if old_test : 
             old_test.MBTItest = mbti['final']
             old_test.save()
-            return Response( {'message' : 'test`s results was successfullly updated'} , status=status.HTTP_200_OK )
+            data = {
+                'message' : 'test`s results was successfullly updated' , 
+                "result" : mbti["final"] 
+            }
+            return Response( data= data , status=status.HTTP_200_OK )
         else : 
             test = TherapyTests.objects.create( 
                 pationt = pationt ,
                 MBTItest = mbti['final']
             )
-            return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK )
+            data = {
+                'message' : 'test`s results was successfullly registered' , 
+                "result" : mbti["final"] 
+            }
+            return Response( data= data , status=status.HTTP_200_OK )
     
 
     def retrieve(self, request, *args, **kwargs):
