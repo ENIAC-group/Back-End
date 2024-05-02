@@ -4,11 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status 
 from counseling.models import Pationt , Psychiatrist 
-from .serializer import ReserveSerializer
+from .serializer import *
 from .models import Reservation
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import date
+from datetime import date , timedelta
 
 
 class ReservationView(viewsets.ModelViewSet ) : 
@@ -20,21 +20,25 @@ class ReservationView(viewsets.ModelViewSet ) :
     serializer_class = ReserveSerializer 
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class( data= request.data )
+        serializer = CreateReserveSerializer(data= request.data )
         serializer.is_valid(raise_exception=True)
-    
+        validated_data =  serializer.validated_data
+        
         if not hasattr(request, 'user'):
             return Response({'message': 'user is not loged in'}, status=status.HTTP_400_BAD_REQUEST)
+        id = validated_data['doctor_id']
+        doctor =  Psychiatrist.objects.filter(id = id )
+        if not doctor.exists() : 
+            return Response({'message': 'docotr id is not corroct.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        doctor = request.data.get('doctor_id')
-        pationt = Pationt.objects.filter( user = request.user )
+        pationt = Pationt.objects.filter( user = request.user ).first()
         reserve = Reservation.objects.create(
-            date = serializer.validated_data["date"] , 
-            type = serializer.validated_data["type"] , 
-            time = serializer.validated_data["time"] , 
-            # day = serializer.validated_data["day"] ,
-            psychiatrist = doctor , 
-            Pationt = pationt 
+            type = validated_data["type"] , 
+            date = validated_data["date"] , 
+            time = validated_data["time"] , 
+            psychiatrist = doctor.first() ,
+            day = '',
+            pationt = pationt
         )
 
         response = {
@@ -55,10 +59,17 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
         
     def list_month(self, request):
+
         queryset = Reservation.objects.all()
         month = request.data.get('month')
         year = request.data.get('year')
-        queryset = queryset.filter(date__year=year, date__month=month)
+        docotor_id = request.data.get('doctor_id')
+        docotor = Psychiatrist.objects.filter( id = docotor_id)
+        if not docotor.exists() : 
+            return Response({"message" : 'there is not doctor with this id '} , status=status.HTTP_400_BAD_REQUEST)
+        docotor = docotor.first()
+        queryset = queryset.filter(date__year=year, date__month=month , psychiatrist = docotor)
+        print("here*******************************************************")
         serializer = ReserveSerializer(queryset, many=True)
         return Response(serializer.data , status=status.HTTP_200_OK)
     
@@ -73,22 +84,27 @@ class ReservationView(viewsets.ModelViewSet ) :
         #     5 : 'پنج‌شنبه' , 
         #     6 : 'جمعه'  
         # }
-        serializer = self.get_serializer(data=request.query_params)
+
+        serializer = DaySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         date1 = serializer.validated_data['date']
         doctor = serializer.validated_data['doctor_id']
-        day = (date1.weekday() + 2)%7 
-        saturday = date( day= date1.day- day , month=date1.month , year=date1.year)
-        thirsday = date( day= saturday.day+5 , month=saturday.month , year=saturday.year)
-        reservations = Reservation.objects.filter(date__range=[saturday, thirsday], psychiatrist=doctor)
+        day = (date1.weekday() + 4 )%7 
+        saturday = date( day= date1.day  , month=date1.month , year=date1.year) - timedelta(days=day ) 
+        thirsday = date( day= saturday.day , month=saturday.month , year=saturday.year) + timedelta(days=5)
+        
+        reservations = Reservation.objects.filter( psychiatrist = doctor)
+        print(reservations )
+        reservations = reservations.filter(date__range=[str(saturday) , str(thirsday) ])
+        print([str(saturday) , str(thirsday) ])
         serializer = ReserveSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
     def between_dates(self, request):
-        serializer = self.get_serializer(data=request.query_params)
+        serializer = BetweenDatesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+    
         start_date = serializer.validated_data['start_date']
         end_date = serializer.validated_data['end_date']
         doctor_id = serializer.validated_data['doctor_id']
@@ -101,8 +117,8 @@ class ReservationView(viewsets.ModelViewSet ) :
         if not start_date or not end_date:
             return Response({"message": "Both start_date and end_date are required"}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            start_date = timezone.datetime.strptime(start_date, "%Y-%m-%d").date()
-            end_date = timezone.datetime.strptime(end_date, "%Y-%m-%d").date()
+            start_date = timezone.datetime.strptime( str(start_date) , "%Y-%m-%d").date()
+            end_date = timezone.datetime.strptime( str(end_date), "%Y-%m-%d").date()
         except ValueError:
             return Response({"message": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
 

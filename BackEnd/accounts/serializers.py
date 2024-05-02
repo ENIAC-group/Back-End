@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
-class CompleteInfoSerializer(serializers.ModelSerializer ) : 
+class CompleteInfoSerializer(serializers.ModelSerializer) : 
     
     class Meta:
         model = User 
