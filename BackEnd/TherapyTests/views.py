@@ -275,16 +275,15 @@ class GlasserTestView(viewsets.ModelViewSet) :
             old_test.save()
             return Response( {'message' : 'test`s results was successfullly registerd'} , status=status.HTTP_200_OK ) 
         else :  
-                glasser = old_test.glasserTest 
-                glasser.love = categories["love"] , 
-                glasser.survive = categories["survive"] , 
-                glasser.freedom = categories["freedom"] , 
-                glasser.power = categories["power"] , 
-                glasser.fun = categories["fun"]
-                glasser.save()    
-                return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK ) 
+            glasser = old_test.glasserTest 
+            glasser.love = categories["love"] , 
+            glasser.survive = categories["survive"] , 
+            glasser.freedom = categories["freedom"] , 
+            glasser.power = categories["power"] , 
+            glasser.fun = categories["fun"]
+            glasser.save()    
+            return Response( {'message' : 'test`s results was successfullly registered'} , status=status.HTTP_200_OK ) 
                
-
     def retrieve(self, request, *args, **kwargs):
         user = request.user
         pationt = Pationt.objects.filter(user = user ).first()
