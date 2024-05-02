@@ -11,3 +11,9 @@ class DoctorPanelSerializer(serializers.Serializer):
         return super().validate(attrs) 
     
 
+class ReservationListSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Reservation
+        fields = ["date","day","time","type","MeetingLink","pationt"]
+    def validate(self, attrs):
+        return super().validate(attrs)

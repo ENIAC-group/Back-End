@@ -9,7 +9,7 @@ from django.utils import timezone
 from Rating.views import RatingViewSet
 from Rating.models import Rating
 from django.db.models import Count, Avg
-from .serializers import DoctorPanelSerializer
+from .serializers import DoctorPanelSerializer ,ReservationListSerializer
 from datetime import datetime, timedelta
 
 
@@ -42,8 +42,39 @@ class DoctorPanelView(viewsets.ModelViewSet):
 
         return Response(response_data)
     
+    def ThisWeekResevations(self,request):
+        #for each date it shows the rervations from saturday to friday 
+        serializer = DoctorPanelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        psychiatrist_id=serializer.validated_data['psychiatrist_id']
+        psychiatrist = Psychiatrist.objects.get(pk=psychiatrist_id)
+        today = timezone.now().date()
+        days_to_saturday = (today.weekday() - 5) % 7
+        start_of_week = today - timedelta(days=days_to_saturday)
+        end_of_week = start_of_week + timedelta(days=6)
+        reservations_this_week = Reservation.objects.filter(
+            psychiatrist=psychiatrist,
+            date__range=[start_of_week, end_of_week]
+        ).order_by('date','time')
+        reservation_serializer = ReservationListSerializer(reservations_this_week, many=True)
+        return Response({'reservations_this_week': reservation_serializer.data})
+    
+    def NextWeekReservations(self, request):
+        #Reservation starting today to 7 days later 
+        serializer = DoctorPanelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        psychiatrist_id = serializer.validated_data['psychiatrist_id']
+        psychiatrist = Psychiatrist.objects.get(pk=psychiatrist_id)
+        today = timezone.now().date()
+        end_date = today + timedelta(days=6)
 
-
+        reservations_next_seven_days = Reservation.objects.filter(
+            psychiatrist=psychiatrist,
+            date__range=[today, end_date]
+        ).order_by('date','time')
+        reservation_serializer = ReservationListSerializer(reservations_next_seven_days, many=True)
+        
+        return Response({'reservations_next_seven_days': reservation_serializer.data})
 
 
 
