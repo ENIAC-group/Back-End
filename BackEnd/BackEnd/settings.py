@@ -177,7 +177,7 @@ DATABASES = {
         'NAME': 'TherapyDB',
         'USER': 'postgres',
         'PASSWORD': 'Hgbr5391',
-        'HOST': 'localhost',
+        'HOST': 'postgreSQL',
         'PORT': '5432',
 
     }

@@ -18,7 +18,7 @@ class ReservationView(viewsets.ModelViewSet ) :
     """
     permission_classes = [IsAuthenticated]
     serializer_class = ReserveSerializer 
-
+    queryset = Reservation.objects.all()
     def create(self, request, *args, **kwargs):
         serializer = CreateReserveSerializer(data= request.data )
         serializer.is_valid(raise_exception=True)
@@ -59,7 +59,6 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
         
     def list_month(self, request):
-
         queryset = Reservation.objects.all()
         month = request.data.get('month')
         year = request.data.get('year')
