@@ -12,7 +12,7 @@ class Rating(models.Model):
     psychiatrist = models.ForeignKey(Psychiatrist, on_delete=models.CASCADE)
     pationt = models.ForeignKey(Pationt, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(default=0, choices=CHOICES)
-    comments = models.TextField()
+    comments = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('psychiatrist', 'pationt')
