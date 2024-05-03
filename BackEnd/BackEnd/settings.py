@@ -115,6 +115,8 @@ INSTALLED_APPS = [
     "GoogleMeet",
     "TherapyTests",
     "telegrambot",
+    "Doctorpanel",
+    "Rating",
 ]
 SITE_ID = 1 
 
