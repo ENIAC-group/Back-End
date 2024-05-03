@@ -15,12 +15,10 @@ class GlasserTest(models.Model) :
     power = models.FloatField( default=0.0 )
     fun = models.FloatField( default=0.0 )
 
-
 class TherapyTests(models.Model) : 
     pationt = models.OneToOneField(Pationt , on_delete=models.CASCADE )
     MBTItest = models.CharField( max_length=6 , blank=True , null=True  )
-    glasserTest = models.ForeignKey( GlasserTest , on_delete=models.DO_NOTHING  , null=True)
-    
+    glasserTest = models.ForeignKey( GlasserTest , on_delete=models.DO_NOTHING  , blank=True , null=True)
 
 class TreatementHistory(models.Model): 
     end_date = models.DateField()
@@ -53,9 +51,9 @@ class MedicalRecord(models.Model) :
     name = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     age = models.IntegerField(range(4 , 80 ))
-    treatementHistory1 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True , related_name="treatement_history1")
-    treatementHistory2 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True , related_name="treatement_history2")
-    treatementHistory3 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True , related_name="treatement_history3")
+    treatementHistory1 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True,blank=True , related_name="treatement_history1")
+    treatementHistory2 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True , blank=True ,related_name="treatement_history2")
+    treatementHistory3 = models.ForeignKey(TreatementHistory , on_delete=models.DO_NOTHING , null=True , blank=True ,related_name="treatement_history3")
     gender = models.CharField(max_length=5 , choices=GENDER_CHOICES ,null=True )
     family_history = models.BooleanField(default=False )
     nationalID = models.CharField(max_length=10 , blank=False )

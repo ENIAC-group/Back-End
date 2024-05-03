@@ -179,6 +179,7 @@ DATABASES = {
         'PASSWORD': 'Hgbr5391',
         'HOST': 'postgreSQL',
         'PORT': '5432',
+        'DISABLE_SERVER_SIDE_CURSORS': True,
 
     }
 }
