@@ -12,11 +12,17 @@ def GlasserResults(data ) :
     # }
 
     categories_score = {}
+    categories_nums = {}
     for value in data.values() : 
         if value["category"] not in categories_score.keys() :     
             categories_score[ value["category"]] = value["res"] 
+            categories_nums[ value["category"]] = 1
         else : 
             categories_score[ value["category"]] += value["res"] 
+            categories_nums[ value["category"]] += 1
+            
+    for key in categories_nums.keys() : 
+        categories_score[key] = round(( categories_score[key] /categories_nums[key]),2) 
     return categories_score 
 
     

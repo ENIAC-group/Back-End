@@ -1,10 +1,7 @@
 from rest_framework import serializers
 
 class GoogleMeetSerializer(serializers.Serializer):
-
     reservation_id = serializers.IntegerField()
-    
-
     def create(self, validated_data):
 
         reservation_id = validated_data['Reservation_id']
