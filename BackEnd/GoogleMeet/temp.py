@@ -634,3 +634,16 @@
 
 
 
+# class GoogleMeetAPIView(GoogleMeetCredentialsMixin, View):
+#     def get(self, request, *args, **kwargs):
+#         # Use the authorize method to get credentials
+#         credentials = self.authorize(request)
+#         # Your code to interact with the Google Meet API goes here
+
+#     def create_space(self) -> meet.Space:
+#         """Create a meeting space."""
+#         credentials = self.authorize(request)
+#         client = meet.SpacesServiceClient(credentials=credentials)
+#         request = meet.CreateSpaceRequest()
+#         return client.create_space(request=request)
+
