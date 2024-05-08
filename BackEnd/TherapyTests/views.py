@@ -4,10 +4,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from utils.therapy_tests import GetMBTIresults ,GlasserResults
-from counseling.models import Pationt 
-from .models import TherapyTests , GlasserTest , MedicalRecord , TreatementHistory
+from counseling.models import Pationt ,Psychiatrist
+from .models import TherapyTests , GlasserTest , MedicalRecord , TreatementHistory , MedicalRecordPermission
 from rest_framework import status 
 import json 
+from datetime import datetime , date , timedelta
 from django.http.request import QueryDict
 from .serializer import MedicalRecordSerializer
 from django.forms.models import model_to_dict
@@ -180,7 +181,49 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
 
         return Response(data , status=status.HTTP_200_OK )
     
-
+    def retrieve_list_all( self , request ) : 
+        user = request.user
+        if user.role == 'user' : 
+            return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
+        doctor = Psychiatrist.objects.filter( user = user).first()
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        if doctor_patients.exists() : 
+            queryset = doctor_patients.filter(pationt__in=doctor_patients).order_by('-created_date')
+            serializer = self.get_serializer(queryset, many=True)
+            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+        else : 
+            return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
+        
+    def retrieve_list_last_30_day( self , request ) : 
+        user = request.user
+        end = date.today
+        start = end - timedelta(days=30)
+        if user.role == 'user' : 
+            return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
+        doctor = Psychiatrist.objects.filter( user = user).first()
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        if doctor_patients.exists() : 
+            queryset = doctor_patients.filter(pationt__in=doctor_patients , created_date__range=[str(start) , str(end)]).order_by('-created_date')
+            serializer = self.get_serializer(queryset, many=True)
+            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+        else : 
+            return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
+        
+    def retrieve_list_last_year( self , request ) : 
+        user = request.user
+        end = date.today
+        start = end - timedelta(days=360)
+        if user.role == 'user' : 
+            return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
+        doctor = Psychiatrist.objects.filter( user = user).first()
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        if doctor_patients.exists() : 
+            queryset = doctor_patients.filter(pationt__in=doctor_patients , created_date__range=[str(start) , str(end)]).order_by('-created_date')
+            serializer = self.get_serializer(queryset, many=True)
+            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+        else : 
+            return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
+      
     
     def retrieve(self , request ) : 
         user = request.user 

@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     "TherapyTests",
     "telegrambot",
     "Doctorpanel",
+    "django-environs" ,
     "Rating",
 ]
 SITE_ID = 1 

@@ -89,4 +89,9 @@ class MedicalRecord(models.Model) :
         print("now " ,  now_year , "your age : " ,self.pationt.user.date_of_birth.year  )
         return now_year - self.pationt.user.date_of_birth.year 
     
-   
+      
+class MedicalRecordPermission( models.Model ) : 
+    pationt = models.ForeignKey( Pationt , on_delete=models.CASCADE ) 
+    psychiatrist = models.ForeignKey(Psychiatrist , on_delete=models.CASCADE)
+    created_date = models.DateField(default=datetime.date.today())
+
