@@ -5,12 +5,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from utils.therapy_tests import GetMBTIresults ,GlasserResults
 from counseling.models import Pationt ,Psychiatrist
-from .models import TherapyTests , GlasserTest , MedicalRecord , TreatementHistory , MedicalRecordPermission
+from .models import TherapyTests , GlasserTest , MedicalRecord , TreatementHistory , MedicalRecordPermission 
 from rest_framework import status 
 import json 
-from datetime import datetime , date , timedelta
+from datetime import datetime , date , timedelta 
+from django.utils import timezone
 from django.http.request import QueryDict
-from .serializer import MedicalRecordSerializer
+from .serializer import MedicalRecordSerializer ,MedicalGetRecord ,TreatementHistorySerializer , ThrapyTestSerializer , GlasserSerializer
 from django.forms.models import model_to_dict
 # https://www.youtube.com/watch?v=P2_j1P51dNI&list=RD1mZhwXMl8vc&index=27
 
@@ -186,44 +187,123 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
         doctor = Psychiatrist.objects.filter( user = user).first()
-        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor ).values_list('pationt', flat=True)
         if doctor_patients.exists() : 
-            queryset = doctor_patients.filter(pationt__in=doctor_patients).order_by('-created_date')
-            serializer = self.get_serializer(queryset, many=True)
-            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+            ress = MedicalRecord.objects.filter(pationt__in=doctor_patients)
+            data_list = []
+            for item in ress:
+                datas = {
+                    'child_num': item.child_num,
+                    'family_history': item.family_history,
+                    'nationalID': item.nationalID,
+                    'id': item.id,
+                    'name': item.name,
+                    'age': item.age,
+                    'gender': item.gender
+                }
+                if item.treatementHistory1 != None : 
+                    datas['treatementHistory1']= TreatementHistorySerializer(item.treatementHistory1).data
+                if item.treatementHistory2 != None : 
+                    datas['treatementHistory2'] = TreatementHistorySerializer(item.treatementHistory2).data
+                if item.treatementHistory3 != None : 
+                    datas['treatementHistory3']= TreatementHistorySerializer(item.treatementHistory3).data
+                if item.therapyTests != None :   
+                    v = ThrapyTestSerializer(item.therapyTests).data
+                    v['glasserTest'] = GlasserSerializer( item.therapyTests.glasserTest ).data
+                    datas['therapyTests'] = v 
+                data_list.append(datas)
+            serializer = MedicalGetRecord(data=data_list,many=True)
+            if serializer.is_valid():
+                return Response({"records": serializer.validated_data}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else : 
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
         
+
     def retrieve_list_last_30_day( self , request ) : 
         user = request.user
-        end = date.today
+        end = timezone.now().date()
         start = end - timedelta(days=30)
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
         doctor = Psychiatrist.objects.filter( user = user).first()
-        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor, created_date__range=[str(start) , str(end)] ).order_by('-created_date').values_list('pationt', flat=True)
         if doctor_patients.exists() : 
-            queryset = doctor_patients.filter(pationt__in=doctor_patients , created_date__range=[str(start) , str(end)]).order_by('-created_date')
-            serializer = self.get_serializer(queryset, many=True)
-            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+            ress = MedicalRecord.objects.filter(pationt__in=doctor_patients)
+            data_list = []
+            for item in ress:
+                datas = {
+                    'child_num': item.child_num,
+                    'family_history': item.family_history,
+                    'nationalID': item.nationalID,
+                    'id': item.id,
+                    'name': item.name,
+                    'age': item.age,
+                    'gender': item.gender
+                }
+                if item.treatementHistory1 != None : 
+                    datas['treatementHistory1']= TreatementHistorySerializer(item.treatementHistory1).data
+                if item.treatementHistory2 != None : 
+                    datas['treatementHistory2'] = TreatementHistorySerializer(item.treatementHistory2).data
+                if item.treatementHistory3 != None : 
+                    datas['treatementHistory3']= TreatementHistorySerializer(item.treatementHistory3).data
+                if item.therapyTests != None :   
+                    v = ThrapyTestSerializer(item.therapyTests).data
+                    v['glasserTest'] = GlasserSerializer( item.therapyTests.glasserTest ).data
+                    datas['therapyTests'] = v 
+                # print("datasssss " , datas )
+                data_list.append(datas)
+            serializer = MedicalGetRecord(data=data_list,many=True)
+            if serializer.is_valid():
+                return Response({"records": serializer.validated_data}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else : 
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
         
     def retrieve_list_last_year( self , request ) : 
         user = request.user
-        end = date.today
+        end = timezone.now().date()
         start = end - timedelta(days=360)
         if user.role == 'user' : 
-            return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
+            return Response({"message" : "ordinary user can not access this Information."} , status = status.HTTP_400_BAD_REQUEST)
+    
         doctor = Psychiatrist.objects.filter( user = user).first()
-        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor )
+        doctor_patients = MedicalRecordPermission.objects.filter(psychiatrist = doctor, created_date__range=[str(start) , str(end)] ).order_by('-created_date').values_list('pationt', flat=True)
+
         if doctor_patients.exists() : 
-            queryset = doctor_patients.filter(pationt__in=doctor_patients , created_date__range=[str(start) , str(end)]).order_by('-created_date')
-            serializer = self.get_serializer(queryset, many=True)
-            raise Response({"records" : serializer.data} , status = status.HTTP_200_OK)
+            ress = MedicalRecord.objects.filter(pationt__in=doctor_patients)
+            data_list = []
+            for item in ress:
+                datas = {
+                    'child_num': item.child_num,
+                    'family_history': item.family_history,
+                    'nationalID': item.nationalID,
+                    'id': item.id,
+                    'name': item.name,
+                    'age': item.age,
+                    'gender': item.gender
+                }
+                if item.treatementHistory1 != None : 
+                    datas['treatementHistory1']= TreatementHistorySerializer(item.treatementHistory1).data
+                if item.treatementHistory2 != None : 
+                    datas['treatementHistory2'] = TreatementHistorySerializer(item.treatementHistory2).data
+                if item.treatementHistory3 != None : 
+                    datas['treatementHistory3']= TreatementHistorySerializer(item.treatementHistory3).data
+                if item.therapyTests != None :   
+                    v = ThrapyTestSerializer(item.therapyTests).data
+                    v['glasserTest'] = GlasserSerializer( item.therapyTests.glasserTest ).data
+                    datas['therapyTests'] = v 
+                # print("datasssss " , datas )
+                data_list.append(datas)
+            serializer = MedicalGetRecord(data=data_list,many=True)
+            if serializer.is_valid():
+                return Response({"records": serializer.validated_data}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else : 
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
-      
     
     def retrieve(self , request ) : 
         user = request.user 
