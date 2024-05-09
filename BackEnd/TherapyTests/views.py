@@ -355,6 +355,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
 
 class ThrepayTestsView(viewsets.ModelViewSet ) : 
     permission_classes = [IsAuthenticated]
+    serializer_class = ThrapyTestSerializer
     def get( self , request ) : 
         user = request.user
         pationt = Pationt.objects.filter(user = user ).first()
@@ -363,8 +364,11 @@ class ThrepayTestsView(viewsets.ModelViewSet ) :
         test = TherapyTests.objects.filter( pationt = pationt ).first()
         if not test : 
             Response({"message" : "this user hasn't take any tests!"} , status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response( {"TherapTests" : test} , status=status.HTTP_200_OK )
+
+        v = ThrapyTestSerializer(test).data
+        v['glasserTest'] = GlasserSerializer( test.glasserTest ).data
+    
+        return Response( {"TherapTests" : v} , status=status.HTTP_200_OK )
 
 
 class GlasserTestView(viewsets.ModelViewSet ) : 
