@@ -31,6 +31,7 @@ djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.7
 environs==11.0.0
 exceptiongroup==1.2.0
+fuzzywuzzy==0.18.0
 google-api-core==2.18.0
 google-api-python-client==2.125.0
 google-apps-meet==0.1.6
