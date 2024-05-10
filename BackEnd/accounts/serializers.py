@@ -9,7 +9,7 @@ from django.core import exceptions as exception
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname" , "phone_number" , "id" ] #, "phone_number"]   , "role"
+        fields = ["date_of_birth", "email" ,"gender","firstname" ,"lastname" , "phone_number" , "id" , "role"] #, "phone_number"]   , "role"
 
     def validate(self, attrs):
         return super().validate(attrs)
