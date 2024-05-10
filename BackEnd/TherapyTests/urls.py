@@ -10,5 +10,5 @@ urlpatterns = [
     path( 'record_doctor_month/' , MedicalRecordView.as_view({'get' : 'retrieve_list_last_30_day' }) , name='month_records_ops') ,
     path( 'record_doctor_year/' , MedicalRecordView.as_view({'get' : 'retrieve_list_last_year' }) , name='year_records_ops') ,
     path( 'record_all/' , MedicalRecordView.as_view( {'get' : 'retrieve_list_all'})) , 
-    path( 'record/query/' , MedicalRecordView.as_view( {'get' : 'query_on_records'}))
+    path( 'record/query/' , MedicalRecordView.as_view( {'post' : 'query_on_records'}))
 ]
