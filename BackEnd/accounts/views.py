@@ -42,7 +42,7 @@ class SignUpView(CreateAPIView):
             password = make_password( validated_data['password1']) ,
             verification_code=verification_code,
             verification_tries_count=1,
-            last_verification_sent=datetime.now(),
+            # last_verification_sent=datetime.now(),
         )
 
         # TODO   make sure it is locate in right place 

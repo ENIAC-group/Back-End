@@ -6,6 +6,13 @@ from django.forms.models import model_to_dict
 from .models import TreatementHistory , TherapyTests , GlasserTest 
 
 
+class MedicalQueryRecord(serializers.ModelSerializer) : 
+    
+    class Meta:
+        model = MedicalRecord
+        fields = [ 'nationalID' , 'id' , 'name' ]
+
+
 class TreatementHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TreatementHistory

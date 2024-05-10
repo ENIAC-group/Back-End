@@ -121,7 +121,7 @@ class User(AbstractBaseUser):
     is_email_verified = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=4, null=True, blank=True)
     verification_tries_count = models.IntegerField(default=0)
-    last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now())
+    # last_verification_sent = models.DateTimeField(null=True, blank=True, default=datetime.now())
     has_verification_tries_reset = models.BooleanField(default=False)
     
     def get_role(self ) : 
