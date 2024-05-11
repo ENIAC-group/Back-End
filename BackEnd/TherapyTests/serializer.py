@@ -78,7 +78,13 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
     
 
     def run_validation(self, data=...):
-        data_dict = {key: value[0] for key, value in data.lists()}
+        print("*******************" , data )
+        data_dict = None 
+        if type(data) is dict : 
+            data_dict = data
+        else : 
+            data_dict = {key: value[0] for key, value in data.lists()}
+        print( "***********" , data_dict )
         serializer = self.__class__()
         child_num = data.get('child_num')
         family_history = data.get('family_history')
@@ -129,13 +135,6 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
             value = seializer3.validated_data
             value = (seializer3.validated_data)
             medical_record['treatementHistory3'] = dict(value)
-
         return medical_record
-    
-    
-
-    def validate_empty_values(self, data):
-        print("data 2222  : " , data )
-        return super().validate_empty_values(data)
     
     

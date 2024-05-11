@@ -24,7 +24,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
     def create(self , request ) : 
         user = request.user 
         pationt = Pationt.objects.filter(user = user ).first()
-        serializer = self.serializer_class(data= request.data )
+        serializer = self.serializer_class(data= request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.stored_validated_data 
         treatementHistory1 = None 
@@ -74,7 +74,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
             treatementHistory2 = treatementHistory2 , 
             treatementHistory3 = treatementHistory3
         )
-     
+    
         oi_dict = model_to_dict(medical_record)
         oi_serialized = json.dumps(oi_dict)
         data = {
