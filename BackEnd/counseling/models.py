@@ -13,6 +13,9 @@ class Psychiatrist(models.Model ) :
     TYPE_KIDS =  "کودک"
     TYPE_COUPLES = "زوج"
     TYPE_TEEN  = "نوجوان"
+    TYPE_FAMILY = "خانواده"
+    TYPE_EDUCATIONAL = "تحصیلی"
+    
     TYPE_USER = "defualt"
     CHOICES = (
         (TYPE_INDIVIDUAL , "فردی") , 
