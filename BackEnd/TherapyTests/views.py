@@ -320,9 +320,10 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                 
                 for obj , score in scores : 
                     if score> 45 : 
+                        print( "sdflsfjdslfjdslfj " , obj.id )
                         datas = {
-                            'nationalID': obj.nationalID,
                             'id': obj.id,
+                            'nationalID': obj.nationalID,
                             'name': obj.name,
                         }
                         data_list.append(datas)   
@@ -330,6 +331,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                     return Response({"message": "not found any similar data."}, status=status.HTTP_400_BAD_REQUEST)
             else : 
                 for obj in objects: 
+                    print( "sdflsfjdslfjdslfj ***********8" , obj.id )
                     datas = {
                         'nationalID': obj.nationalID,
                         'id': obj.id,
