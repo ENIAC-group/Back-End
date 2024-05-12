@@ -18,7 +18,7 @@ class ReservationView(viewsets.ModelViewSet ) :
     """
     permission_classes = [IsAuthenticated]
     serializer_class = ReserveSerializer 
-
+    queryset = Reservation.objects.all()
     def create(self, request, *args, **kwargs):
         serializer = CreateReserveSerializer(data= request.data )
         serializer.is_valid(raise_exception=True)

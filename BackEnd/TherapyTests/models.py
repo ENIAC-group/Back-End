@@ -16,12 +16,10 @@ class GlasserTest(models.Model) :
     power = models.FloatField( default=0.0 )
     fun = models.FloatField( default=0.0 )
 
-
 class TherapyTests(models.Model) : 
     pationt = models.OneToOneField(Pationt , on_delete=models.CASCADE )
     MBTItest = models.CharField( max_length=6 , blank=True , null=True  )
-    glasserTest = models.ForeignKey( GlasserTest , on_delete=models.DO_NOTHING  , null=True)
-    
+    glasserTest = models.ForeignKey( GlasserTest , on_delete=models.DO_NOTHING  , blank=True , null=True)
 
 class TreatementHistory(models.Model): 
     end_date = models.DateField()

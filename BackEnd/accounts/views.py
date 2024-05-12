@@ -127,7 +127,7 @@ class ActivationResend(GenericAPIView):
             verification_code = str(random.randint(1000, 9999))
             user.verification_tries_count += 1
             user.verification_code = verification_code
-            user.last_verification_sent = datetime.now()
+            # user.last_verification_sent = datetime.now()
             user.save()
             show_text = user.has_verification_tries_reset or user.verification_tries_count > 1
             token = generate_tokens(user.id)["access"]
@@ -184,7 +184,7 @@ class ForgotPassword(GenericAPIView) :
                 verification_code = str(random.randint(1000, 9999))
                 user.verification_tries_count += 1
                 user.verification_code = verification_code
-                user.last_verification_sent = datetime.now()
+                # user.last_verification_sent = datetime.now()
                 user.save()
                 token = generate_tokens(user.id)["access"]
                 email_handler.send_forget_password_verification_message(subject=subject,
