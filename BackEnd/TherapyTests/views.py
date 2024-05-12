@@ -300,7 +300,6 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
 
     def query_on_records(self , request ) : 
         query = request.data.get('name')
-        print("name   " , query)
         user = request.user
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
@@ -313,30 +312,35 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                 scores = []
                 for obj in objects:
                     score = fuzz.ratio(query, obj.name)
+                    if score < 50:
+                        continue
+                    partial_score = fuzz.partial_ratio(query, obj.name)
+                    if partial_score < 60:
+                        continue
+
                     scores.append((obj, score))
 
                 scores.sort(key=lambda x: x[1], reverse=True)
-                print( "all scores : " ,scores )
                 
                 for obj , score in scores : 
-                    if score> 45 : 
-                        print( "sdflsfjdslfjdslfj " , obj.id )
-                        datas = {
-                            'id': obj.id,
-                            'nationalID': obj.nationalID,
-                            'name': obj.name,
-                        }
-                        data_list.append(datas)   
+                    datas = {
+                        'id': obj.id,
+                        'nationalID': obj.nationalID,
+                        'name': obj.name
+                    }
+                    datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
+                    data_list.append(datas)   
+                    
                 if len(data_list) ==0 : 
                     return Response({"message": "not found any similar data."}, status=status.HTTP_400_BAD_REQUEST)
             else : 
                 for obj in objects: 
-                    print( "sdflsfjdslfjdslfj ***********8" , obj.id )
                     datas = {
                         'nationalID': obj.nationalID,
                         'id': obj.id,
                         'name': obj.name,
                     }
+                    datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
                     data_list.append(datas)   
             serializer = MedicalQueryRecord(data=data_list,many=True)
             if serializer.is_valid():
@@ -390,6 +394,15 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
         else : 
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
     
+    def retrieve_check(self , request ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user).first()
+        records = self.queryset.filter( pationt = pationt )
+        if not records.exists() : 
+            return Response({"message" : False } , status=status.HTTP_200_OK )
+        
+        return Response({"message" : True } , status=status.HTTP_200_OK )
+
     def retrieve(self , request ) : 
         user = request.user 
         pationt = Pationt.objects.filter(user = user).first()
