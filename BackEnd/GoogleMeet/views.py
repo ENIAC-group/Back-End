@@ -22,66 +22,77 @@ from datetime import datetime, timezone
 from googleapiclient.errors import HttpError
 from .serializer import GoogleMeetSerializer
 import json
+from google.apps import meet_v2 as meet
+from datetime import datetime, timedelta
 
 
-class GoogleMeetAPIView(APIView):
 
-    creds = None
-            # The file token.json stores the user's access and refresh tokens, and is
-            # created automatically when the authorization flow completes for the first
-            # time.
-    if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-            # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+class GoogleMeetCredentialsMixin:
+    def authorize(self,request) -> Credentials:
+        """Ensure valid credentials for calling the Meet REST API."""
+        credentials = None
+
+        if os.path.exists('token.json'):
+            credentials = Credentials.from_authorized_user_file('token.json')
+
+        if credentials is None:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-                # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    service= build("calendar", "v3", credentials=creds)
+                GOOGLE_CLIENT_SECRETS_FILE,SCOPES)
+            flow.run_local_server(port=0)
+            credentials = flow.credentials
 
-    def post(self,request):
+        if credentials and credentials.expired:
+            credentials.refresh(request.Request())
+
+        if credentials is not None:
+            with open("token.json", "w") as f:
+                f.write(credentials.to_json())
+
+        return credentials
+
+
+
+
+class GoogleMeetAPIView(APIView, GoogleMeetCredentialsMixin):  
+    def post(self, request):
+        credentials = self.authorize(request)
+
         serializer = GoogleMeetSerializer(data=request.data)
         if serializer.is_valid():
             validated_data = serializer.validated_data
             reservation_id = validated_data['reservation_id']
             try:
-                reservation= Reservation.objects.get(id=reservation_id)
+                reservation = Reservation.objects.get(id=reservation_id)
                 psychiatrist = reservation.psychiatrist
                 patient = reservation.pationt
-            except(Reservation.DoesNotExist):
+            except Reservation.DoesNotExist:
                 return Response({"error": "Psychiatrist or Patient not found"}, status=status.HTTP_404_NOT_FOUND)
-            # if request.user == psychiatrist.user:
-            #     organizer = True
-            # else:
-            #     organizer = False
+
+            start_time = datetime.strptime(str(reservation.date) + "T" + str(reservation.time), "%Y-%m-%dT%H:%M:%S")
+            end_time = start_time + timedelta(hours=1)  # Adding 1 hour to the start time
 
             event = {
                 "summary": f"Appointment with Dr.{psychiatrist.user.lastname}",
                 "description": "Appointment with psychiatrist",
                 "colorId": 1,
+                "organizer": {"email": psychiatrist.user.email},
                 "conferenceData": {
                     "createRequest": {
                         "requestId": str(uuid.uuid4()),
                         "conferenceSolutionKey": {"type": "hangoutsMeet"},
                     }
                 },
-                "start": {"dateTime": str(reservation.date) + "T" + str(reservation.time), "timeZone": "UTC"},
-                "end": {"dateTime": str(reservation.date) + "T" + str(reservation.time), "timeZone": "UTC"},
-                # "organizer" :{"email": psychiatrist.user.email, "responseStatus": "accepted"},
+                "start": {"dateTime": start_time.isoformat(), "timeZone": "UTC"},
+                "end": {"dateTime": end_time.isoformat(), "timeZone": "UTC"},
                 "attendees": [
                     {"email": psychiatrist.user.email, "responseStatus": "accepted", "organizer": True},
                     {"email": patient.user.email, "responseStatus": "accepted"}
                 ]
             }
             try:
+                service = build("calendar", "v3", credentials=credentials)
                 inserted_event = (
-                    self.service.events()
+                    service.events()
                     .insert(
                         calendarId="primary",
                         sendNotifications=True,
@@ -94,15 +105,11 @@ class GoogleMeetAPIView(APIView):
                 reservation.save()
                 email_subject = "Reservation Confirmation"
                 email_recipient = patient.user.email
-                email_handler.send_GoogleMeet_Link(email_subject, [email_recipient],reservation.psychiatrist.user.lastname,
-                                                   reservation.date,reservation.time, reservation.MeetingLink)
+                email_handler.send_GoogleMeet_Link(email_subject, [email_recipient], psychiatrist.user.lastname,
+                                                   reservation.date, reservation.time, reservation.MeetingLink)
                 return Response(inserted_event, status=status.HTTP_201_CREATED)
             except HttpError as error:
                 print(f"Error in inserting calendar event: {error}")
                 return Response({"error": "Failed to insert calendar event"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-        
-                 
