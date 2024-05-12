@@ -1,27 +1,56 @@
 from rest_framework import serializers 
 from .models import TreatementHistory , MedicalRecord 
 import json
+from django.http import QueryDict
+from django.forms.models import model_to_dict
+from .models import TreatementHistory , TherapyTests , GlasserTest 
+
+
+class MedicalQueryRecord(serializers.Serializer) : 
+    
+    id = serializers.IntegerField()
+    nationalID = serializers.CharField(max_length = 10)
+    name = serializers.CharField(max_length = 40 )
+    # class Meta:
+    #     # model = MedicalRecord
+    #     fields = [ 'id'  , 'nationalID' , 'name']
 
 
 class TreatementHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TreatementHistory
-        fields = '__all__'
+        fields = ('end_date' , 'length' , 'is_finished' , 'reason_to_leave' , 'approach' , 'special_drugs' , 'id') 
 
+
+class GlasserSerializer( serializers.ModelSerializer) : 
+    class Meta : 
+        model = GlasserTest
+        fields = ('love' , 'survive' , 'freedom' , 'power' , 'fun') 
+
+class ThrapyTestSerializer( serializers.ModelSerializer) : 
+    glasserTest = GlasserSerializer()
+
+    class Meta : 
+        model = TherapyTests
+        fields = ['id' , 'MBTItest' , 'glasserTest']
+        extra_kwargs = {
+            'glasserTest' : {'required': False},
+        }
+    
     def is_valid(self, *, raise_exception=False):
-        
+        print("in therapy test is valid ")
         return super().is_valid(raise_exception=raise_exception)
+
+class MedicalGetRecord(serializers.ModelSerializer) : 
+    treatementHistory1 = TreatementHistorySerializer(required=False)
+    treatementHistory2 = TreatementHistorySerializer(required=False)
+    treatementHistory3 = TreatementHistorySerializer(required=False)
+    therapyTests = ThrapyTestSerializer(required=False)
     
-    def run_validation(self, data=...):
+    class Meta:
+        model = MedicalRecord
+        fields = ['child_num' , 'family_history' , 'nationalID' , 'id' , 'name' , 'age' , 'gender' , 'treatementHistory1' , 'treatementHistory2' , 'treatementHistory3' , 'therapyTests' ]
         
-        return super().run_validation(data)
-    
-    def validate(self, attrs):
-        return super().validate(attrs)
-
-    def validate(self, attrs):
-        return super().validate(attrs)
-
 
 class MedicalRecordSerializer(serializers.ModelSerializer):
     
@@ -34,7 +63,7 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicalRecord
-        fields = ['child_num' , 'family_history' , 'nationalID' , 'id' ] # , 'treatementHistory1' , 'treatementHistory2' , 'treatementHistory3' 
+        fields = ['child_num' , 'family_history' , 'nationalID' , 'id' , 'name' , 'age' , 'gender' ] # , 'treatementHistory1' , 'treatementHistory2' , 'treatementHistory3' 
         extra_kwargs = {
             'treatementHistory1': {'required': False}, 
             'treatementHistory2': {'required': False},
@@ -47,8 +76,15 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
         valid = super().is_valid(raise_exception=raise_exception)
         return valid
     
+
     def run_validation(self, data=...):
-        data_dict = {key: value[0] for key, value in data.lists()}
+        
+        data_dict = None 
+        if type(data) is dict : 
+            data_dict = data
+        else : 
+            data_dict = {key: value[0] for key, value in data.lists()}
+        
         serializer = self.__class__()
         child_num = data.get('child_num')
         family_history = data.get('family_history')
@@ -99,83 +135,6 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
             value = seializer3.validated_data
             value = (seializer3.validated_data)
             medical_record['treatementHistory3'] = dict(value)
-
         return medical_record
     
-
-    def validate_empty_values(self, data):
-        print("data 2222  : " , data )
-        return super().validate_empty_values(data)
-    
-    # def create(self, validated_data):
-    #     treatement_history1 = validated_data.pop('treatementHistory1')
-    #     treatement_history2 = validated_data.pop('treatementHistory2')
-    #     treatement_history3 = validated_data.pop("treatementHistory3")
-    #     medical_record = MedicalRecord.objects.create(**validated_data)
-    #     if treatement_history1 : 
-    #         tr1 = TreatementHistory.objects.create(**treatement_history1)
-    #         medical_record.treatementHistory3 = tr1
-    #     if treatement_history2 : 
-    #         tr2 = TreatementHistory.objects.create(**treatement_history2)
-    #         medical_record.treatementHistory3 = tr2
-    #     if treatement_history3 : 
-    #         tr3 = TreatementHistory.objects.create(**treatement_history3)
-    #         medical_record.treatementHistory3 = tr3
-    #     return medical_record
-
-
-    # def update(self, instance, validated_data):
-    #     treatement_history1 = validated_data.pop('treatementHistory1')
-    #     treatement_history2 = validated_data.pop('treatementHistory2')
-    #     treatement_history3 = validated_data.pop('treatementHistory3')
-
-    #     instance.child_num = validated_data.get('child_num', instance.child_num)
-    #     instance.family_history = validated_data.get('family_history', instance.family_history)
-    #     instance.nationalID = validated_data.get('nationalID', instance.nationalID)
-    #     instance.save()
-
-    #     treatements_pool = []
-    #     old_ids = []
-
-    #     if instance.treatementHistory1 : 
-    #         old_ids.append(instance.treatementHistory1.id)
-    #     if instance.treatementHistory2 : 
-    #         old_ids.append(instance.treatementHistory2.id)
-    #     if instance.treatementHistory3 : 
-    #         old_ids.append(instance.treatementHistory3.id)
-
-    #     if treatement_history1 : 
-    #         treatements_pool.append(treatement_history1)
-    #     if treatement_history2 : 
-    #         treatements_pool.append(treatement_history2)
-    #     if treatement_history3 : 
-    #         treatements_pool.append(treatement_history3)
-        
-
-    #     for treatement in treatements_pool:
-    #         if treatement['id'] in old_ids : 
-    #             if TreatementHistory.objects.filter(id = treatement['id'] ).exists():
-    #                 treatement_instance = TreatementHistory.objects.get(id=treatement['id'])
-    #                 treatement_instance.end_date = treatement.get('end_date', treatement_instance.end_date)
-    #                 treatement_instance.length = treatement.get('length',treatement_instance.length)
-    #                 treatement_instance.is_finished = treatement.get('is_finished' , treatement_instance.is_finished)
-    #                 treatement_instance.reason_to_leave = treatement.get('reason_to_leave' , treatement_instance.reason_to_leave)
-    #                 treatement_instance.approach = treatement.get('approach' , treatement_instance.approach )
-    #                 treatement_instance.special_drugs = treatement.get('special_drugs' , treatement_instance.special_drugs ) 
-    #                 treatement_instance.save()
-    #             else:
-    #                 continue
-    #         else:
-    #             new_treatement = TreatementHistory.objects.create( **treatement)
-    #             if not instance.treatementHistory1: 
-    #                 instance.treatementHistory1 = new_treatement
-    #             elif not instance.treatementHistory2 : 
-    #                 instance.treatementHistory2 = new_treatement
-                
-    #             elif not instance.treatementHistory3 : 
-    #                 instance.treatementHistory3 = new_treatement 
-
-    #     return instance
-    
-
     
