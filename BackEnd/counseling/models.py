@@ -13,12 +13,17 @@ class Psychiatrist(models.Model ) :
     TYPE_KIDS =  "کودک"
     TYPE_COUPLES = "زوج"
     TYPE_TEEN  = "نوجوان"
+    TYPE_FAMILY = "خانواده"
+    TYPE_EDUCATIONAL = "تحصیلی"
+    
     TYPE_USER = "defualt"
     CHOICES = (
         (TYPE_INDIVIDUAL , "فردی") , 
         (TYPE_COUPLES , "زوج") , 
         (TYPE_KIDS , "کودک") , 
-        (TYPE_TEEN , "نوجوان") 
+        (TYPE_TEEN , "نوجوان") ,
+        (TYPE_EDUCATIONAL , 'تحصیلی') , 
+        (TYPE_FAMILY , 'خانواده') 
     )
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True ,blank=True )
 

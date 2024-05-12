@@ -47,6 +47,8 @@ urlpatterns = [
     path('telegrambot/' , include("telegrambot.urls")), 
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('TherapyTests/' , include("TherapyTests.urls")),
+    path('Rating/',include("Rating.urls")),
+    path('DoctorPanel/',include("Doctorpanel.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,5 +1,6 @@
+from typing import Iterable
 from django.db import models
-from counseling.models import Pationt 
+from counseling.models import Pationt , Psychiatrist
 from django.core.exceptions import ValidationError 
 import datetime
 # نیاز به بقا	
@@ -27,6 +28,7 @@ class TreatementHistory(models.Model):
     reason_to_leave = models.TextField(blank=True , max_length= 500 )
     approach = models.TextField( max_length= 30 ,blank=True , null=True)
     special_drugs = models.TextField(max_length=200 , blank=True )
+    
     def to_dict(self):
         return {
             'end_date': self.end_date,
@@ -87,4 +89,17 @@ class MedicalRecord(models.Model) :
         print("now " ,  now_year , "your age : " ,self.pationt.user.date_of_birth.year  )
         return now_year - self.pationt.user.date_of_birth.year 
     
-   
+      
+class MedicalRecordPermission( models.Model ) : 
+    pationt = models.ForeignKey( Pationt , on_delete=models.CASCADE ) 
+    psychiatrist = models.ForeignKey(Psychiatrist , on_delete=models.CASCADE)
+    created_date = models.DateField(default=datetime.date.today())
+
+    def save(self, *args, **kwargs):
+        """
+        Check if there's already a Psychiatrist object associated with this User
+        """ 
+        if MedicalRecordPermission.objects.filter(pationt = self.pationt ,psychiatrist=self.psychiatrist ).exists() == False :
+            return super().save(*args, **kwargs)
+
+
