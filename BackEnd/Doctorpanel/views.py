@@ -9,8 +9,11 @@ from django.utils import timezone
 from Rating.views import RatingViewSet
 from Rating.models import Rating
 from django.db.models import Count, Avg
-from .serializers import DoctorPanelSerializer ,ReservationListSerializer
+from .serializers import DoctorPanelSerializer ,ReservationListSerializer , FreeTimeSerializer
 from datetime import datetime, timedelta
+from .models import DoctorPanel
+from rest_framework import generics, status
+
 
 
 
@@ -76,11 +79,16 @@ class DoctorPanelView(viewsets.ModelViewSet):
         
         return Response({'reservations_next_seven_days': reservation_serializer.data})
 
+    def PostFreeTime(self,request):
+        serializer = FreeTimeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        # freetime = DoctorPanel.objects.filter(psychiatrist=request.user.psychiatrist)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+ 
 
 
-
-
-
+        
 
     
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from counseling.models import Psychiatrist
 from reservation.models import Reservation
+from .models import DoctorPanel
 
 class DoctorPanelSerializer(serializers.Serializer):
     psychiatrist_id = serializers.IntegerField()
@@ -12,8 +13,22 @@ class DoctorPanelSerializer(serializers.Serializer):
     
 
 class ReservationListSerializer(serializers.ModelSerializer):
-    class Meta :
+    patient_full_name = serializers.SerializerMethodField()
+    class Meta:
         model = Reservation
-        fields = ["date","day","time","type","MeetingLink","pationt"]
+        fields = ["date", "day", "time", "type", "MeetingLink", "patient_full_name"]
+
+    def get_patient_full_name(self, obj):
+        pationt = obj.pationt
+        user = pationt.user
+        return f"{user.firstname} {user.lastname}"
+    def validate(self, attrs):
+        return super().validate(attrs)
+    
+
+class FreeTimeSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = DoctorPanel
+        fields = ['psychiatrist', 'date', 'time']
     def validate(self, attrs):
         return super().validate(attrs)
