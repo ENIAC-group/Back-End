@@ -78,13 +78,13 @@ class MedicalRecordSerializer(serializers.ModelSerializer):
     
 
     def run_validation(self, data=...):
-        print("*******************" , data )
+        
         data_dict = None 
         if type(data) is dict : 
             data_dict = data
         else : 
             data_dict = {key: value[0] for key, value in data.lists()}
-        print( "***********" , data_dict )
+        
         serializer = self.__class__()
         child_num = data.get('child_num')
         family_history = data.get('family_history')
