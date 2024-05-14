@@ -7,6 +7,7 @@ services:
     image: postgres:13.1-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - shared_data:/app/data/
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=postgres
@@ -16,6 +17,7 @@ services:
     - '5432:5432'
     networks:
       - eniac
+
 # docker inspect -f '{{range .NetworkSettings.Networks}}{{.localhost}}{{end}}' eniac
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -36,6 +38,7 @@ services:
       - .:/app
       # - static_volume:/app/static
       - media_volume:/app/media
+      - shared_data:/app/data/
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=postgres
@@ -54,6 +57,7 @@ services:
 volumes:
   postgres_data:
   media_volume:
+  shared_data:
 
 networks:
   eniac:

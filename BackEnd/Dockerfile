@@ -20,7 +20,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy project
 COPY . /app/
-
+COPY data.sql data/
 EXPOSE 8000
 
 
