@@ -3,7 +3,8 @@ from rest_framework import viewsets
 from reservation import views
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Reservation, Psychiatrist
+from counseling.models import  Psychiatrist
+from reservation.models import Reservation
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from Rating.views import RatingViewSet
@@ -11,9 +12,11 @@ from Rating.models import Rating
 from django.db.models import Count, Avg
 from .serializers import DoctorPanelSerializer ,ReservationListSerializer , FreeTimeSerializer
 from datetime import datetime, timedelta
-from .models import DoctorPanel
+from .models import FreeTime
 from rest_framework import generics, status
 from rest_framework.status import HTTP_404_NOT_FOUND
+from datetime import datetime, time
+
 
 
 
@@ -89,12 +92,24 @@ class DoctorPanelView(viewsets.ModelViewSet):
         
         return Response({'reservations_next_seven_days': reservation_serializer.data})
 
-    def PostFreeTime(self,request):
+    def PostFreeTime(self, request):
         serializer = FreeTimeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        # freetime = DoctorPanel.objects.filter(psychiatrist=request.user.psychiatrist)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            psychiatrist = serializer.validated_data['psychiatrist']
+            date = serializer.validated_data['date']
+            time_str = serializer.validated_data['time']
+            
+            free_time = FreeTime.objects.create(
+                psychiatrist=psychiatrist,
+                date=date,
+                time=time_str
+            )
+            
+            free_time.save()
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  
 
 

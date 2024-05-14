@@ -4,7 +4,8 @@ from counseling.models import Pationt
 from reservation.models import Reservation
 
 
-class DoctorPanel(models.Model):
+class FreeTime(models.Model):
+
     psychiatrist = models.ForeignKey(Psychiatrist, on_delete=models.CASCADE)
     date = models.DateField(null=True)
     HOUR_CHOICES = [

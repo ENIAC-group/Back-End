@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from counseling.models import Psychiatrist
 from reservation.models import Reservation
-from .models import DoctorPanel
+from .models import FreeTime
 
 class DoctorPanelSerializer(serializers.Serializer):
     psychiatrist_id = serializers.IntegerField()
@@ -28,7 +28,7 @@ class ReservationListSerializer(serializers.ModelSerializer):
 
 class FreeTimeSerializer(serializers.ModelSerializer):
     class Meta :
-        model = DoctorPanel
+        model = FreeTime
         fields = ['psychiatrist', 'date', 'time']
     def validate(self, attrs):
         return super().validate(attrs)
