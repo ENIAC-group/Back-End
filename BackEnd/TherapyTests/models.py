@@ -104,16 +104,3 @@ class MedicalRecordPermission( models.Model ) :
             return super().save(*args, **kwargs)
 
 
-class Permission( models.Model ) : 
-    pationt = models.ForeignKey( Pationt , on_delete=models.CASCADE ) 
-    psychiatrist = models.ForeignKey(Psychiatrist , on_delete=models.CASCADE)
-    created_date = models.DateField(default=datetime.date.today())
-
-    # def save(self, *args, **kwargs):
-    #     """
-    #     Check if there's already a Psychiatrist object associated with this User
-    #     """ 
-    #     if MedicalRecordPermission.objects.filter(pationt = self.pationt ,psychiatrist=self.psychiatrist ).exists() == False :
-    #         return super().save(*args, **kwargs)
-
-
