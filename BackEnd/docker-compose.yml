@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:      
+  db:
+    container_name: postgreSQL
+    image: postgres:13.1-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Hgbr5391
+      - POSTGRES_DB=TherapyDB
+    ports:
+    - '5432:5432'
+    networks:
+      - eniac
+
+  backend:
+    build: .
+    container_name: backend
+    volumes:
+      - .:/app
+      # - static_volume:/app/static
+      - media_volume:/app/media
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Hgbr5391
+      - POSTGRES_DB=TherapyDB
+    depends_on:
+      - db
+    command: ./docker-entrypoint.sh
+    ports:
+      - '8000:8000'
+    links:
+      - db:db
+    networks:
+      - eniac
+
+volumes:
+  postgres_data:
+  media_volume:
+
+networks:
+  eniac:
+    driver: bridge
+
+  # nginx:
+  #   image: nginx
+  #   container_name: nginx
+  #   restart: always
+  #   ports:
+  #     - "8070:80"
+  #   volumes:
+  #     - ./deployment/nginx_default.conf:/etc/nginx/conf.d/default.conf
+  #     # - static_volume:/home/app/static
+  #     - media_volume:/home/app/media
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - eniac
+
+  

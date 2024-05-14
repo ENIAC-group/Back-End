@@ -51,7 +51,6 @@ urlpatterns = [
     path('DoctorPanel/',include("Doctorpanel.urls")),
 ]
 
-
 if settings.DEBUG:
     urlpatterns += [
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

@@ -8,9 +8,14 @@ from .serializer import *
 from .models import Reservation
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
+<<<<<<< HEAD
 from datetime import date , timedelta
 from Doctorpanel.models import FreeTime
 from django.db import transaction
+=======
+from datetime import date , timedelta ,datetime
+
+>>>>>>> 021b7eee2f4dc3bc57ea8833d713ab9ff9c0626f
 
 class ReservationView(viewsets.ModelViewSet ) : 
     """
@@ -19,7 +24,7 @@ class ReservationView(viewsets.ModelViewSet ) :
     """
     permission_classes = [IsAuthenticated]
     serializer_class = ReserveSerializer 
-
+    queryset = Reservation.objects.all()
     def create(self, request, *args, **kwargs):
         serializer = CreateReserveSerializer(data= request.data )
         serializer.is_valid(raise_exception=True)
@@ -39,6 +44,16 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
 
         pationt = Pationt.objects.filter( user = request.user ).first()
+        last_reservation = Reservation.objects.filter(pationt = pationt )
+        
+        if last_reservation.exists() : 
+            last_reservation = last_reservation.last()
+            # parsed_date = datetime.strptime(validated_data["date"], "%Y-%m-%d")
+            diff = validated_data["date"] - last_reservation.date if validated_data["date"] > last_reservation.date  else last_reservation.date - validated_data["date"] 
+            print( "diffffffffffffffff *****************" , diff )
+            if diff.days < 8: 
+                return Response( {"message" : "you can not reservere 2 times under 8 days drift"} , status=status.HTTP_400_BAD_REQUEST)
+
         reserve = Reservation.objects.create(
                 type = validated_data["type"] , 
                 date = chosen_date, 
@@ -75,7 +90,6 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
         
     def list_month(self, request):
-
         queryset = Reservation.objects.all()
         month = request.data.get('month')
         year = request.data.get('year')
@@ -85,7 +99,7 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message" : 'there is not doctor with this id '} , status=status.HTTP_400_BAD_REQUEST)
         docotor = docotor.first()
         queryset = queryset.filter(date__year=year, date__month=month , psychiatrist = docotor)
-        print("here*******************************************************")
+        # print("here*******************************************************")
         serializer = ReserveSerializer(queryset, many=True)
         return Response(serializer.data , status=status.HTTP_200_OK)
     
