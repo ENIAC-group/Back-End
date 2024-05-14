@@ -2,6 +2,7 @@ version: "3.9"
 
 services:      
   db:
+    restart: always
     container_name: postgreSQL
     image: postgres:13.1-alpine
     volumes:
@@ -15,6 +16,18 @@ services:
     - '5432:5432'
     networks:
       - eniac
+# docker inspect -f '{{range .NetworkSettings.Networks}}{{.localhost}}{{end}}' eniac
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin #you can change this
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - "5051:80"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+  #     PGADMIN_DEFAULT_PASSWORD: root
+  #   restart: always
 
   backend:
     build: .
