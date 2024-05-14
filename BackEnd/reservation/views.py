@@ -8,14 +8,11 @@ from .serializer import *
 from .models import Reservation
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-<<<<<<< HEAD
 from datetime import date , timedelta
 from Doctorpanel.models import FreeTime
 from django.db import transaction
-=======
 from datetime import date , timedelta ,datetime
 
->>>>>>> 021b7eee2f4dc3bc57ea8833d713ab9ff9c0626f
 
 class ReservationView(viewsets.ModelViewSet ) : 
     """
