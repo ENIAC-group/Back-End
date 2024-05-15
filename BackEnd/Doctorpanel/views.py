@@ -3,7 +3,8 @@ from rest_framework import viewsets
 from reservation import views
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Reservation, Psychiatrist
+from counseling.models import  Psychiatrist
+from reservation.models import Reservation
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from Rating.views import RatingViewSet
@@ -11,22 +12,27 @@ from Rating.models import Rating
 from django.db.models import Count, Avg
 from .serializers import DoctorPanelSerializer ,ReservationListSerializer , FreeTimeSerializer
 from datetime import datetime, timedelta
-from .models import DoctorPanel
+from .models import FreeTime
 from rest_framework import generics, status
 from rest_framework.status import HTTP_404_NOT_FOUND
+from datetime import datetime, time
+from rest_framework.permissions import IsAuthenticated
+
 
 
 
 
 class DoctorPanelView(viewsets.ModelViewSet):
-    serializer_class=DoctorPanelSerializer
+    serializer_class=FreeTimeSerializer
+    permission_classes = [IsAuthenticated]
 
-    def get_rating(self, request,psychiatrist_id):
+
+    def get_rating(self, request):
         # serializer = DoctorPanelSerializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
         # psychiatrist_id=serializer.validated_data['psychiatrist_id']
         try:
-            psychiatrist = Psychiatrist.objects.get(pk=psychiatrist_id)
+            psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
         except Psychiatrist.DoesNotExist:
             return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
         ratings = Rating.objects.filter(psychiatrist=psychiatrist)
@@ -49,13 +55,13 @@ class DoctorPanelView(viewsets.ModelViewSet):
 
         return Response(response_data)
     
-    def ThisWeekResevations(self,request,psychiatrist_id):
+    def ThisWeekResevations(self,request):
         #for each date it shows the rervations from saturday to friday 
         # serializer = DoctorPanelSerializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
         # psychiatrist_id=request.data.get('psychiatrist_id')
         try:
-            psychiatrist = Psychiatrist.objects.get(pk=psychiatrist_id)
+            psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
         except Psychiatrist.DoesNotExist:
             return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
         today = timezone.now().date()
@@ -69,13 +75,13 @@ class DoctorPanelView(viewsets.ModelViewSet):
         reservation_serializer = ReservationListSerializer(reservations_this_week, many=True)
         return Response({'reservations_this_week': reservation_serializer.data})
     
-    def NextWeekReservations(self, request,psychiatrist_id):
+    def NextWeekReservations(self, request):
         #Reservation starting today to 7 days later 
         # serializer = DoctorPanelSerializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
         # psychiatrist_id = serializer.validated_data['psychiatrist_id']
         try:
-            psychiatrist = Psychiatrist.objects.get(pk=psychiatrist_id)
+            psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
         except Psychiatrist.DoesNotExist:
             return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
         today = timezone.now().date()
@@ -89,12 +95,28 @@ class DoctorPanelView(viewsets.ModelViewSet):
         
         return Response({'reservations_next_seven_days': reservation_serializer.data})
 
-    def PostFreeTime(self,request):
+    def PostFreeTime(self, request):
         serializer = FreeTimeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        # freetime = DoctorPanel.objects.filter(psychiatrist=request.user.psychiatrist)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            try:
+                psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
+            except Psychiatrist.DoesNotExist:
+                return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
+            # psychiatrist = serializer.validated_data['psychiatrist']
+            date = serializer.validated_data['date']
+            time = serializer.validated_data['time']
+            
+            free_time = FreeTime.objects.create(
+                psychiatrist=psychiatrist,
+                date=date,
+                time=time
+            )
+            
+            free_time.save()
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  
 
 

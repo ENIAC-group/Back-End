@@ -8,6 +8,9 @@ from .serializer import *
 from .models import Reservation
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import date , timedelta
+from Doctorpanel.models import FreeTime
+from django.db import transaction
 from datetime import date , timedelta ,datetime
 
 
@@ -30,7 +33,13 @@ class ReservationView(viewsets.ModelViewSet ) :
         doctor =  Psychiatrist.objects.filter(id = id )
         if not doctor.exists() : 
             return Response({'message': 'docotr id is not corroct.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        chosen_date = validated_data["date"]
+        chosen_time = validated_data["time"]
+        free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time))
+        if not free_time.exists():
+            return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
+
         pationt = Pationt.objects.filter( user = request.user ).first()
         last_reservation = Reservation.objects.filter(pationt = pationt )
         
@@ -43,27 +52,36 @@ class ReservationView(viewsets.ModelViewSet ) :
                 return Response( {"message" : "you can not reservere 2 times under 8 days drift"} , status=status.HTTP_400_BAD_REQUEST)
 
         reserve = Reservation.objects.create(
-            type = validated_data["type"] , 
-            date = validated_data["date"] , 
-            time = validated_data["time"] , 
-            psychiatrist = doctor.first() ,
-            day = '',
-            pationt = pationt
-        )
+                type = validated_data["type"] , 
+                date = chosen_date, 
+                time = chosen_time , 
+                psychiatrist = doctor.first() ,
+                day = '',
+                pationt = pationt
+            )
+        free_time.delete()
 
         response = {
-            "reserve" : ReserveSerializer(reserve).data ,
-            "message" : "reservation successfully created"
-        }
-        
+                "reserve" : ReserveSerializer(reserve).data ,
+                "message" : "reservation successfully created"
+            }
+            
         return Response( data=response , status=status.HTTP_201_CREATED)
+
     
 
     def destroy(self, request, *args, **kwargs):
         try:
             reservation_id = kwargs.get('pk')
             reservation = Reservation.objects.get(id=reservation_id)
-            reservation.delete()
+            doctor = reservation.psychiatrist
+            reserved_date = reservation.date
+            reserved_time = reservation.time
+            
+            with transaction.atomic():
+                reservation.delete()
+                FreeTime.objects.create(psychiatrist=doctor, date=reserved_date, time=reserved_time)
+                
             return Response({"message": "Reservation successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except Reservation.DoesNotExist:
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)

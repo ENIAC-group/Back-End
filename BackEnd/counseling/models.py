@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError 
 from telegrambot.models import TelegramAccount
+from django.contrib.postgres.fields import ArrayField
+
 # from TherapyTests.models import TherapyTests
 import datetime
 
