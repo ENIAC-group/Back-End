@@ -36,9 +36,9 @@ class ReservationView(viewsets.ModelViewSet ) :
 
         chosen_date = validated_data["date"]
         chosen_time = validated_data["time"]
-        free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time))
-        if not free_time.exists():
-            return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
+        # free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time))
+        # if not free_time.exists():
+        #     return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
 
         pationt = Pationt.objects.filter( user = request.user ).first()
         last_reservation = Reservation.objects.filter(pationt = pationt )
@@ -59,7 +59,7 @@ class ReservationView(viewsets.ModelViewSet ) :
                 day = '',
                 pationt = pationt
             )
-        free_time.delete()
+        # free_time.delete()
 
         response = {
                 "reserve" : ReserveSerializer(reserve).data ,
