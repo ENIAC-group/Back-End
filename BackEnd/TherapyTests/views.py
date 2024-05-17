@@ -267,7 +267,8 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
         user = request.user
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
-        ress = MedicalRecord.objects.filter(id = id )
+        p = Pationt.objects.filter( id = id ).first()
+        ress = MedicalRecord.objects.filter( pationt  =p ).first()
         if not ress.exists() : 
             return Response({"message" : "there is no record with this id."} , status =status.HTTP_400_BAD_REQUEST )
         item = ress.first()
