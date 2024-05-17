@@ -6,6 +6,12 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ('psychiatrist', 'rating', 'comments')
+
+    def run_validation(self, data=...):
+        return super().run_validation(data)  
+      
+    def run_validators(self, value):
+        return super().run_validators(value) 
     
     def validate(self, attrs):
         return super().validate(attrs)
