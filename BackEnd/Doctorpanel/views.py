@@ -25,8 +25,6 @@ from rest_framework.permissions import IsAuthenticated
 class DoctorPanelView(viewsets.ModelViewSet):
     serializer_class=FreeTimeSerializer
     permission_classes = [IsAuthenticated]
-
-
     def get_rating(self, request):
         # serializer = DoctorPanelSerializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
@@ -74,7 +72,8 @@ class DoctorPanelView(viewsets.ModelViewSet):
         ).order_by('date','time')
         reservation_serializer = ReservationListSerializer(reservations_this_week, many=True)
         return Response({'reservations_this_week': reservation_serializer.data})
-    
+
+
     def NextWeekReservations(self, request):
         #Reservation starting today to 7 days later 
         # serializer = DoctorPanelSerializer(data=request.data)
@@ -92,8 +91,8 @@ class DoctorPanelView(viewsets.ModelViewSet):
             date__range=[today, end_date]
         ).order_by('date','time')
         reservation_serializer = ReservationListSerializer(reservations_next_seven_days, many=True)
-        
         return Response({'reservations_next_seven_days': reservation_serializer.data})
+
 
     def PostFreeTime(self, request):
         serializer = FreeTimeSerializer(data=request.data)
