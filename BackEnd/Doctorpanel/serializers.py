@@ -22,6 +22,7 @@ class ReservationListSerializer(serializers.ModelSerializer):
         pationt = obj.pationt
         user = pationt.user
         return f"{user.firstname} {user.lastname}"
+    
     def validate(self, attrs):
         return super().validate(attrs)
     
@@ -30,5 +31,6 @@ class FreeTimeSerializer(serializers.ModelSerializer):
     class Meta :
         model = FreeTime
         fields = ['date', 'time']
+        
     def validate(self, attrs):
         return super().validate(attrs)
