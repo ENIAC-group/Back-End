@@ -42,21 +42,22 @@ class ReservationView(viewsets.ModelViewSet ) :
 
         pationt = Pationt.objects.filter( user = request.user ).first()
         last_reservation = Reservation.objects.filter(pationt = pationt )
+        if chosen_date < datetime.now().date() : 
+            return Response( {"message" : "can not reserve a time of past."} , status=status.HTTP_400_BAD_REQUEST)
         
         if last_reservation.exists() : 
             last_reservation = last_reservation.last()
             # parsed_date = datetime.strptime(validated_data["date"], "%Y-%m-%d")
             diff = validated_data["date"] - last_reservation.date if validated_data["date"] > last_reservation.date  else last_reservation.date - validated_data["date"] 
-            print( "diffffffffffffffff *****************" , diff )
-            if diff.days < 8: 
+            if diff.days < 8 : 
                 return Response( {"message" : "you can not reservere 2 times under 8 days drift"} , status=status.HTTP_400_BAD_REQUEST)
-
+       
         reserve = Reservation.objects.create(
                 type = validated_data["type"] , 
                 date = chosen_date, 
                 time = chosen_time , 
                 psychiatrist = doctor.first() ,
-                day = '',
+                # day = '',
                 pationt = pationt
             )
         # free_time.delete()
