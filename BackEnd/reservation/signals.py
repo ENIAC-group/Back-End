@@ -8,3 +8,4 @@ def create_virtual_meeting(sender, instance, created, **kwargs):
     if created and instance.type == 'مجازی': 
         google_meet_api = GoogleMeetAPIView()
         google_meet_api.post(request=None ,data={"reservation_id": instance.id})
+# ///
