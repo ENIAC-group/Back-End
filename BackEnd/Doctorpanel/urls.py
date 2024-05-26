@@ -6,7 +6,6 @@ urlpatterns = [
     path("ThisWeekResevations/" , DoctorPanelView.as_view({'get':'ThisWeekResevations'}) , name="ReservationList") , 
     path("NextWeekReservations/" , DoctorPanelView.as_view({'get':'NextWeekReservations'}) , name="ReservationList2") , 
     path('doctor/post-free-time/', DoctorPanelView.as_view({'post':'PostFreeTime'})),
-    path('doctor/get-free-time/', DoctorPanelView.as_view({'get':'GetAllFreeTime'})),
 
 
 ]

@@ -118,16 +118,6 @@ class DoctorPanelView(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-    def GetAllFreeTime(self,request):
-        try:
-            psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
-        except Psychiatrist.DoesNotExist:
-            return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
-
-        free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
-        serializer = FreeTimeSerializer(free_times, many=True)
-        return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
- 
 
 
         
