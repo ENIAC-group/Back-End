@@ -12,6 +12,7 @@ from datetime import date , timedelta
 from Doctorpanel.models import FreeTime
 from django.db import transaction
 from datetime import date , timedelta ,datetime
+from Doctorpanel.serializers import FreeTimeSerializer
 
 
 class ReservationView(viewsets.ModelViewSet ) : 
@@ -85,7 +86,20 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message": "Reservation successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except Reservation.DoesNotExist:
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
+    
+    def GetAllFreeTime(self,request,*args, **kwargs):
+        try:
+            psychiatrist_id = kwargs.get('pk')
+            psychiatrist = Psychiatrist.objects.get(id=psychiatrist_id)
+        except Psychiatrist.DoesNotExist:
+            return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
+        serializer = FreeTimeSerializer(free_times, many=True)
+        return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
+
+
     def list_month(self, request):
         queryset = Reservation.objects.all()
         month = request.data.get('month')
@@ -152,3 +166,4 @@ class ReservationView(viewsets.ModelViewSet ) :
         reservations = Reservation.objects.filter(date__range=[start_date, end_date], psychiatrist=doctor)
         serializer = ReserveSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
