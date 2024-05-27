@@ -105,14 +105,17 @@ class DoctorPanelView(viewsets.ModelViewSet):
             # psychiatrist = serializer.validated_data['psychiatrist']
             date = serializer.validated_data['date']
             time = serializer.validated_data['time']
-            
-            free_time = FreeTime.objects.create(
-                psychiatrist=psychiatrist,
-                date=date,
-                time=time
-            )
-            
-            free_time.save()
+
+            if FreeTime.objects.filter(psychiatrist=psychiatrist, date=date, time=time).exists():
+                return Response({'error': 'Free time already exists'}, status=status.HTTP_208_ALREADY_REPORTED)
+            else:
+                
+                free_time = FreeTime.objects.create(
+                    psychiatrist=psychiatrist,
+                    date=date,
+                    time=time
+                )
+                free_time.save()
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
