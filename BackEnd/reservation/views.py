@@ -88,16 +88,36 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
 
     
-    def GetAllFreeTime(self,request,*args, **kwargs):
+    # def GetAllFreeTime(self,request,*args, **kwargs):
+    #     try:
+    #         psychiatrist_id = kwargs.get('pk')
+    #         psychiatrist = Psychiatrist.objects.get(id=psychiatrist_id)
+    #     except Psychiatrist.DoesNotExist:
+    #         return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    #     free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
+    #     serializer = FreeTimeSerializer(free_times, many=True)
+    #     return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
+
+
+    def GetAllFreeTime(self, request, *args, **kwargs):
         try:
             psychiatrist_id = kwargs.get('pk')
             psychiatrist = Psychiatrist.objects.get(id=psychiatrist_id)
         except Psychiatrist.DoesNotExist:
             return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
-        serializer = FreeTimeSerializer(free_times, many=True)
-        return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
+        today = timezone.now().date()
+        first_day_next_month = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+        last_day_next_month = (first_day_next_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        free_times = FreeTime.objects.filter(
+            psychiatrist=psychiatrist,
+            date__range=[first_day_next_month, last_day_next_month]
+        ).order_by('date', 'time')
+
+        serializer = GETFreeTimeSerializer(free_times, many=True)
+        return Response({'Free Time List': serializer.data}, status=status.HTTP_200_OK)
 
 
     def list_month(self, request):
