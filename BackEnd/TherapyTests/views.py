@@ -325,6 +325,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                             'id': obj.id,
                             'nationalID': obj.nationalID,
                             'name': obj.name,
+                            'patient' : obj.pationt.id
                         }
                         data_list.append(datas)   
                 if len(data_list) ==0 : 
@@ -336,6 +337,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                         'nationalID': obj.nationalID,
                         'id': obj.id,
                         'name': obj.name,
+                        'patient' : obj.pationt.id
                     }
                     data_list.append(datas)   
             serializer = MedicalQueryRecord(data=data_list,many=True)
