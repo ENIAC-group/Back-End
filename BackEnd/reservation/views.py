@@ -1,3 +1,4 @@
+import calendar
 from django.shortcuts import render
 from rest_framework import viewsets, serializers
 from rest_framework.permissions import IsAuthenticated
@@ -37,8 +38,8 @@ class ReservationView(viewsets.ModelViewSet ) :
 
         chosen_date = validated_data["date"]
         chosen_time = validated_data["time"]
-        free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time))
-        if not free_time.exists():
+        free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time)).first()
+        if not free_time:
             return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
 
         pationt = Pationt.objects.filter( user = request.user ).first()
@@ -57,7 +58,7 @@ class ReservationView(viewsets.ModelViewSet ) :
                 date = chosen_date, 
                 time = chosen_time , 
                 psychiatrist = doctor.first() ,
-                day = '',
+                day = free_time.day,
                 pationt = pationt
             )
         free_time.delete()
@@ -78,10 +79,12 @@ class ReservationView(viewsets.ModelViewSet ) :
             doctor = reservation.psychiatrist
             reserved_date = reservation.date
             reserved_time = reservation.time
+            reserved_day=reservation.day
+            reserved_month = calendar.month_name[reservation.date.month]
             
             with transaction.atomic():
                 reservation.delete()
-                FreeTime.objects.create(psychiatrist=doctor, date=reserved_date, time=reserved_time)
+                FreeTime.objects.create(psychiatrist=doctor,date=reserved_date,day=reserved_day,month=reserved_month,time=reserved_time)
                 
             return Response({"message": "Reservation successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except Reservation.DoesNotExist:
@@ -108,12 +111,11 @@ class ReservationView(viewsets.ModelViewSet ) :
             return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         today = timezone.now().date()
-        first_day_next_month = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
-        last_day_next_month = (first_day_next_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        end_date = today + timedelta(days=30)
 
         free_times = FreeTime.objects.filter(
             psychiatrist=psychiatrist,
-            date__range=[first_day_next_month, last_day_next_month]
+            date__range=[today, end_date]
         ).order_by('date', 'time')
 
         serializer = GETFreeTimeSerializer(free_times, many=True)
