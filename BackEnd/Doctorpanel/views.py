@@ -1,3 +1,4 @@
+import calendar
 from django.shortcuts import render
 from rest_framework import viewsets
 from reservation import views
@@ -18,13 +19,10 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 from datetime import datetime, time
 from rest_framework.permissions import IsAuthenticated
 
-
-
-
-
 class DoctorPanelView(viewsets.ModelViewSet):
     serializer_class=FreeTimeSerializer
     permission_classes = [IsAuthenticated]
+    queryset = FreeTime.objects.all()
     def get_rating(self, request):
         # serializer = DoctorPanelSerializer(data=request.data)
         # serializer.is_valid(raise_exception=True)
@@ -93,37 +91,195 @@ class DoctorPanelView(viewsets.ModelViewSet):
         reservation_serializer = ReservationListSerializer(reservations_next_seven_days, many=True)
         return Response({'reservations_next_seven_days': reservation_serializer.data})
 
-
     def PostFreeTime(self, request):
         serializer = FreeTimeSerializer(data=request.data)
         if serializer.is_valid():
+            month = serializer.validated_data['month']
+            day = serializer.validated_data['day']
+            times = serializer.validated_data['time']
+
+            if not times:
+                return Response({'error': 'Times are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            times_list = list(set(time.strip() for time in times.split(',')))
+
+            month_index = next(index for index, choice in enumerate(FreeTime.MONTH_CHOICES) if choice[0] == month) + 1
+
+            year = datetime.now().year
+            start_date = datetime(year, month_index, 1)
+            end_date = start_date + timedelta(days=calendar.monthrange(year, month_index)[1] - 1)
+
             try:
                 psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
             except Psychiatrist.DoesNotExist:
-                return Response({'error': 'Psychiatrist not found.'}, status=HTTP_404_NOT_FOUND)
-            # psychiatrist = serializer.validated_data['psychiatrist']
-            date = serializer.validated_data['date']
-            time = serializer.validated_data['time']
+                return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-            if FreeTime.objects.filter(psychiatrist=psychiatrist, date=date, time=time).exists():
-                return Response({'error': 'Free time already exists'}, status=status.HTTP_208_ALREADY_REPORTED)
-            else:
-                
-                free_time = FreeTime.objects.create(
-                    psychiatrist=psychiatrist,
-                    date=date,
-                    time=time
-                )
-                free_time.save()
-            
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            persian_to_weekday = {
+                'شنبه': 5,    # Saturday
+                'یکشنبه': 6,  # Sunday
+                'دوشنبه': 0,  # Monday
+                'سه‌شنبه': 1, # Tuesday
+                'چهارشنبه': 2,# Wednesday
+                'پنج‌شنبه': 3,# Thursday
+                'جمعه': 4     # Friday
+            }
+
+            day_index = persian_to_weekday.get(day, None)
+            if day_index is None:
+                return Response({'error': 'Invalid day name.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            date = start_date
+            while date.weekday() != day_index:
+                date += timedelta(days=1)
+
+            created_free_times = []
+            while date <= end_date:
+                for time in times_list:
+                    conflicts = FreeTime.objects.filter(
+                        psychiatrist=psychiatrist,
+                        month=month,
+                        day=day,
+                        date=date,
+                        time=time
+                    ).exists()
+                    if conflicts:
+                        return Response({'error': f'Free time already exists for {day} at {time}.'}, status=status.HTTP_208_ALREADY_REPORTED)
+                    else:
+                        free_time = FreeTime.objects.create(
+                            psychiatrist=psychiatrist,
+                            month=month,
+                            day=day,
+                            date=date,
+                            time=time
+                        )
+                        free_time.save()
+                        created_free_times.append(free_time)
+
+                date += timedelta(days=7)
+
+            response_data = FreeTimeSerializer(created_free_times, many=True).data
+            return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+
+    # def UpdateFreeTime(self, request):
+    #     serializer = FreeTimeSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         month = serializer.validated_data['month']
+    #         day = serializer.validated_data['day']
+    #         times = serializer.validated_data['time']
+
+    #         if not times:
+    #             return Response({'error': 'Times are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    #         new_times_list = [time.strip() for time in times.split(',')]
+
+    #         try:
+    #             psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
+    #         except Psychiatrist.DoesNotExist:
+    #             return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    #         try:
+    #             existing_free_times = FreeTime.objects.filter(
+    #                 psychiatrist=psychiatrist,
+    #                 month=month,
+    #                 day=day
+    #             )
+    #             if not existing_free_times.exists():
+    #                 raise FreeTime.DoesNotExist
+    #         except FreeTime.DoesNotExist:
+    #             return Response({'error': 'No free times found for the specified month and day.'}, status=status.HTTP_404_NOT_FOUND)
+
+    #         existing_times = {ft.time for ft in existing_free_times}
+    #         new_times_set = set(new_times_list)
+
+    #         times_to_add = new_times_set - existing_times
+
+    #         times_to_remove = existing_times - new_times_set
+
+    #         FreeTime.objects.filter(
+    #             psychiatrist=psychiatrist,
+    #             month=month,
+    #             day=day,
+    #             time__in=times_to_remove
+    #         ).delete()
+
+    #         created_free_times = []
+    #         for time in times_to_add:
+    #             free_time = FreeTime.objects.create(
+    #                 psychiatrist=psychiatrist,
+    #                 month=month,
+    #                 day=day,
+    #                 time=time
+    #             )
+    #             created_free_times.append(free_time)
+
+    #         updated_free_times = FreeTime.objects.filter(
+    #             psychiatrist=psychiatrist,
+    #             month=month,
+    #             day=day
+    #         ).order_by('time')
+
+    #         response_data = FreeTimeSerializer(updated_free_times, many=True).data
+    #         return Response(response_data, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def DeleteFreeTime(self, request):
+        serializer = FreeTimeSerializer(data=request.data)
+        if serializer.is_valid():
+            month = serializer.validated_data['month']
+            day = serializer.validated_data['day']
+            times = serializer.validated_data['time']
+
+            if not times:
+                return Response({'error': 'Times are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            times_list = list(set(time.strip() for time in times.split(',')))
+
+            try:
+                psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
+            except Psychiatrist.DoesNotExist:
+                return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            not_found_times = []
+            deleted_times = []
+
+            for time in times_list:
+                try:
+                    free_time = FreeTime.objects.get(
+                        psychiatrist=psychiatrist,
+                        month=month,
+                        day=day,
+                        time=time
+                    )
+                    free_time.delete()
+                    deleted_times.append(time)
+                except FreeTime.DoesNotExist:
+                    not_found_times.append(time)
+
+            if not_found_times:
+                return Response({
+                    'error': 'Some free times were not found.',
+                    'not_found_times': not_found_times,
+                    'deleted_times': deleted_times
+                }, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({
+                    'success': 'All specified free times deleted successfully.',
+                    'deleted_times': deleted_times
+                }, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
         
 
-    
+
+
+            
+
+        
 

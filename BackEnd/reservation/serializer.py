@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from Doctorpanel.models import FreeTime
 from accounts.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import password_validation
@@ -46,3 +47,13 @@ class BetweenDatesSerializer(serializers.ModelSerializer):
         
     def validate(self, attrs):
         return super().validate(attrs)    
+    
+
+class GETFreeTimeSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = FreeTime
+        fields = ['month', 'day', 'time', 'date']  
+
+    def validate(self, attrs):
+        return super().validate(attrs)

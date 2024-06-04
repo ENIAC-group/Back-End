@@ -28,9 +28,10 @@ class ReservationListSerializer(serializers.ModelSerializer):
     
 
 class FreeTimeSerializer(serializers.ModelSerializer):
+    time = serializers.CharField()
     class Meta :
         model = FreeTime
-        fields = ['date', 'time']
-        
+        fields = ['month','day', 'time']
+
     def validate(self, attrs):
         return super().validate(attrs)

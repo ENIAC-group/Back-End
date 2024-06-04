@@ -1,3 +1,4 @@
+import calendar
 from django.shortcuts import render
 from rest_framework import viewsets, serializers
 from rest_framework.permissions import IsAuthenticated
@@ -37,31 +38,30 @@ class ReservationView(viewsets.ModelViewSet ) :
 
         chosen_date = validated_data["date"]
         chosen_time = validated_data["time"]
-        # free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time))
-        # if not free_time.exists():
-        #     return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
+        free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time)).first()
+        if not free_time:
+            return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
 
         pationt = Pationt.objects.filter( user = request.user ).first()
         last_reservation = Reservation.objects.filter(pationt = pationt )
-        if chosen_date < datetime.now().date() : 
-            return Response( {"message" : "can not reserve a time of past."} , status=status.HTTP_400_BAD_REQUEST)
         
         if last_reservation.exists() : 
             last_reservation = last_reservation.last()
             # parsed_date = datetime.strptime(validated_data["date"], "%Y-%m-%d")
             diff = validated_data["date"] - last_reservation.date if validated_data["date"] > last_reservation.date  else last_reservation.date - validated_data["date"] 
-            if diff.days < 8 : 
+            print( "diffffffffffffffff *****************" , diff )
+            if diff.days < 8: 
                 return Response( {"message" : "you can not reservere 2 times under 8 days drift"} , status=status.HTTP_400_BAD_REQUEST)
-       
+
         reserve = Reservation.objects.create(
                 type = validated_data["type"] , 
                 date = chosen_date, 
                 time = chosen_time , 
                 psychiatrist = doctor.first() ,
-                # day = '',
+                day = free_time.day,
                 pationt = pationt
             )
-        # free_time.delete()
+        free_time.delete()
 
         response = {
                 "reserve" : ReserveSerializer(reserve).data ,
@@ -79,26 +79,47 @@ class ReservationView(viewsets.ModelViewSet ) :
             doctor = reservation.psychiatrist
             reserved_date = reservation.date
             reserved_time = reservation.time
+            reserved_day=reservation.day
+            reserved_month = calendar.month_name[reservation.date.month]
             
             with transaction.atomic():
                 reservation.delete()
-                FreeTime.objects.create(psychiatrist=doctor, date=reserved_date, time=reserved_time)
+                FreeTime.objects.create(psychiatrist=doctor,date=reserved_date,day=reserved_day,month=reserved_month,time=reserved_time)
                 
             return Response({"message": "Reservation successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except Reservation.DoesNotExist:
             return Response({"message": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
 
     
-    def GetAllFreeTime(self,request,*args, **kwargs):
+    # def GetAllFreeTime(self,request,*args, **kwargs):
+    #     try:
+    #         psychiatrist_id = kwargs.get('pk')
+    #         psychiatrist = Psychiatrist.objects.get(id=psychiatrist_id)
+    #     except Psychiatrist.DoesNotExist:
+    #         return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    #     free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
+    #     serializer = FreeTimeSerializer(free_times, many=True)
+    #     return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
+
+
+    def GetAllFreeTime(self, request, *args, **kwargs):
         try:
             psychiatrist_id = kwargs.get('pk')
             psychiatrist = Psychiatrist.objects.get(id=psychiatrist_id)
         except Psychiatrist.DoesNotExist:
             return Response({'error': 'Psychiatrist not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        free_times = FreeTime.objects.filter(psychiatrist=psychiatrist).order_by('date','time')
-        serializer = FreeTimeSerializer(free_times, many=True)
-        return Response({'Free Time List':serializer.data}, status=status.HTTP_200_OK)
+        today = timezone.now().date()
+        end_date = today + timedelta(days=30)
+
+        free_times = FreeTime.objects.filter(
+            psychiatrist=psychiatrist,
+            date__range=[today, end_date]
+        ).order_by('date', 'time')
+
+        serializer = GETFreeTimeSerializer(free_times, many=True)
+        return Response({'Free Time List': serializer.data}, status=status.HTTP_200_OK)
 
 
     def list_month(self, request):

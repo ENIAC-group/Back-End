@@ -326,14 +326,16 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                 scores.sort(key=lambda x: x[1], reverse=True)
                 
                 for obj , score in scores : 
-                    datas = {
-                        'id': obj.id ,
-                        'nationalID': obj.nationalID,
-                        'name': obj.name
-                    }
-                    datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
-                    data_list.append(datas)   
-                    
+                    if score> 45 : 
+                        print( "sdflsfjdslfjdslfj " , obj.id )
+                        datas = {
+                            'id': obj.id,
+                            'nationalID': obj.nationalID,
+                            'name': obj.name,
+                            'patient' : obj.pationt.id
+                        }
+                        data_list.append(datas)   
+
                 if len(data_list) ==0 : 
                     return Response({"message": "not found any similar data."}, status=status.HTTP_400_BAD_REQUEST)
             else : 
@@ -342,6 +344,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                         'nationalID': obj.nationalID,
                         'id': obj.id,
                         'name': obj.name,
+                        'patient' : obj.pationt.id
                     }
                     datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
                     data_list.append(datas)   
