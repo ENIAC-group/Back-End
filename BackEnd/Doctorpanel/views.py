@@ -104,7 +104,7 @@ class DoctorPanelView(viewsets.ModelViewSet):
             if not times:
                 return Response({'error': 'Times are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            times_list = [time.strip() for time in times.split(',')] 
+            times_list = list(set(time.strip() for time in times.split(',')))
 
             month_index = next(index for index, choice in enumerate(FreeTime.MONTH_CHOICES) if choice[0] == month) + 1
 
@@ -239,7 +239,7 @@ class DoctorPanelView(viewsets.ModelViewSet):
             if not times:
                 return Response({'error': 'Times are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            times_list = [time.strip() for time in times.split(',')]
+            times_list = list(set(time.strip() for time in times.split(',')))
 
             try:
                 psychiatrist = Psychiatrist.objects.get(user_id=request.user.id)
