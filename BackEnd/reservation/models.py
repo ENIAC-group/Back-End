@@ -14,8 +14,8 @@ class Reservation(models.Model) :
 
     DAY_CHOICES = [
         (DAY0 , 'شنبه' ),
-        ( DAY1, 'یک‌شنبه'),
-        ( DAY2 ,'دو‌شنبه'),
+        (DAY1, 'یک‌شنبه'),
+        (DAY2 ,'دو‌شنبه'),
         (DAY3 ,'سه‌شنبه'),
         (DAY4 ,'چهار‌شنبه'),
         (DAY5 , 'پنج‌شنبه'),
@@ -43,29 +43,39 @@ class Reservation(models.Model) :
 
     def save(self, *args, **kwargs) :
         day_dict = {
-            0 : 'دوشنبه' , 
-            1 : 'سه شنبه'  , 
-            2 : 'چهارشنبه' , 
-            3 : 'پنج‌شنبه' , 
-            4 : 'جمعه' , 
-            5 : 'شنبه' , 
-            6 : 'یکشنبه' 
+            0 : self.DAY2 , 
+            1 : self.DAY3  , 
+            2 : self.DAY4 , 
+            3 : self.DAY5 , 
+            4 : self.DAY6 , 
+            5 : self.DAY0 , 
+            6 : self.DAY1 
         }
-
+        
         if not self.day: 
-            day_num = date.today().weekday()
+            print( )
+            day_num = self.date.weekday()
+            # day_num = date.today().weekday()
             if day_dict[day_num] == self.DAY0 : 
+                print("he1")
                 self.day = self.DAY0
             elif day_dict[day_num] == self.DAY1 : 
+                print("he2")
                 self.day = self.DAY1
             elif day_dict[day_num] == self.DAY2 : 
+                print("he3")
                 self.day = self.DAY2
             elif day_dict[day_num] == self.DAY3 : 
+                print("he4")
                 self.day = self.DAY3
             elif day_dict[day_num] == self.DAY4 : 
+                print("he5")
                 self.day = self.DAY4
             elif day_dict[day_num] == self.DAY5 : 
+                print("he6")
                 self.day = self.DAY5
             else : 
+                print("he7")
                 self.day = self.DAY6
+
         return super().save()
