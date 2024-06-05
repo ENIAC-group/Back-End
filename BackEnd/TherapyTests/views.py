@@ -334,6 +334,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                             'name': obj.name,
                             'patient' : obj.pationt.id
                         }
+                        datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
                         data_list.append(datas)   
 
                 if len(data_list) ==0 : 
