@@ -12,7 +12,7 @@ class MedicalQueryRecord(serializers.Serializer) :
     nationalID = serializers.CharField(max_length = 10)
     name = serializers.CharField(max_length = 40 )
     patient= serializers.IntegerField()
-
+    gender = serializers.CharField(max_length = 2 )
     # class Meta:
     #     # model = MedicalRecord
     #     fields = [ 'id'  , 'nationalID' , 'name']
