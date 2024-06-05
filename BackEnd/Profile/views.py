@@ -2,11 +2,8 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Profile
+from .serializer import DoctorProfileSerializer 
 
-class DoctorProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = '__all__'
 
 class DoctorProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()

@@ -20,23 +20,23 @@ question_dict = {
 #  disorders : depression , anxiety , Disruptive behaviour and dissocial disorders , eating disorders , 
 #  Schizophrenia ,Egosim 
 answere_patient_dict = {
-    1: ["فرد" , "نوجوان" , "کودک" , "زوج" , "خانواده"] , 
-    2: ["حضوری" , "محازی"] , 
-    3: [ "کودک و نوجوان", "جوان", "بزرگسال" , "مسن"]  , 
-    4: ["گوش دادن" , "کاوش گذشته" , "آموزش مهارت جدید" ,"اعتقادات" , "دادن تکلیف" , "مشخص کردن اهداف بیمار" , "چک کردن فعالانه بیمار" ] , 
-    5: ["زن" , "مرد" , "" ] , 
-    6: [ "غیر مدهبی" , "مذهبی" , "" ] , 
-    7: ["مسن" , "جوان" , ""] , 
-    8: ["پیام دادن" , "تماس تلفنی" , "ایمیل" , "نبود ارتباط" , ""] , 
-    9: "پنیک،فوبیا،اضطراب" , 
-    10: "خودکشی"  , 
-    11: "پارانویا"  , 
-    12: "عدم تمرکز" , 
-    13: "افسردگی" , 
-    14: "رفتار مخرب و اختلالات غیراجتماعی" , 
-    15: "اختلال غذا خوردن" , 
-    16: "اگوسیم"  , 
-    17: "ADHD" 
+    0: ["فرد" , "نوجوان" , "کودک" , "زوج" , "خانواده"] , 
+    1: ["حضوری" , "محازی"] , 
+    2: [ "کودک و نوجوان", "جوان", "بزرگسال" , "مسن"]  , 
+    3: ["گوش دادن" , "کاوش گذشته" , "آموزش مهارت جدید" ,"اعتقادات" , "دادن تکلیف" , "مشخص کردن اهداف بیمار" , "چک کردن فعالانه بیمار" ] , 
+    4: ["زن" , "مرد" , "" ] , 
+    5: [ "غیر مدهبی" , "مذهبی" , "" ] , 
+    # 7: ["مسن" , "جوان" , ""] , 
+    6: ["پیام دادن" , "تماس تلفنی" , "ایمیل" , "نبود ارتباط" , ""] , 
+    7: "پنیک،فوبیا،اضطراب" , 
+    8: "خودکشی"  , 
+    9: "پارانویا"  , 
+    10: "عدم تمرکز" , 
+    11: "افسردگی" , 
+    12: "رفتار مخرب و اختلالات غیراجتماعی" , 
+    13: "اختلال غذا خوردن" , 
+    14: "اگوسیم"  , 
+    15: "ADHD" 
 }
 doctor_answere_dict = {
     1: ["حضوری" , "مجازی"] , 
@@ -134,23 +134,24 @@ def process_patient_answeres(data ) :
     try : 
         for key,value in data.items() : 
             # print( " in process      and key is " , key , " and its type is " , type( key))
-            if key in [1 ,2  , 5 , 6 , 7 ,8 ] :  
+            if key in [0 ,1 ,2 , 4 , 5 , 6 ] :  
                 # print("in 1 , 2 ")
+                print( "key ****************** " , key)
                 final_text += answere_patient_dict[key][int(value)]
                 final_text += " "
-            elif key == 3 : 
-                # print("in 3 ")
-                if int(data[key]) < 20 : 
-                    final_text += answere_patient_dict[key][0]
-                elif int(data[key]) < 36 : 
-                    final_text += answere_patient_dict[key][1]
-                elif int(data[key]) < 65 : 
-                    final_text += answere_patient_dict[key][2]
-                else : 
-                    final_text += answere_patient_dict[key][3]
-                final_text += " "
+            # elif key == 3 : 
+            #     # print("in 3 ")
+            #     if int(data[key]) < 20 : 
+            #         final_text += answere_patient_dict[key][0]
+            #     elif int(data[key]) < 36 : 
+            #         final_text += answere_patient_dict[key][1]
+            #     elif int(data[key]) < 65 : 
+            #         final_text += answere_patient_dict[key][2]
+            #     else : 
+            #         final_text += answere_patient_dict[key][3]
+            #     final_text += " "
 
-            elif key == 4: 
+            elif key == 3: 
                 # print("in 4")
                 buffer = data[key].split( ',')
                 if len(buffer) > 0 : 
@@ -161,23 +162,23 @@ def process_patient_answeres(data ) :
                             final_text += i  
                 final_text += " " 
 
-            elif key in [9, 11 ] and int(value) == 0 : 
+            elif key in [7, 9 ] and int(value) == 0 : 
                 # print("in 7 , 9")
                 final_text+= answere_patient_dict[key]
                 final_text += " "
-            elif key == 10 and int(data[key]) > 1:  
+            elif key == 8 and int(data[key]) > 1:  
                 # print("in 8")   
                 final_text += answere_patient_dict[key]
                 final_text += " "
-            elif key == 12 and int(data[key]) ==2 : 
+            elif key == 10 and int(data[key]) ==2 : 
                 # print("in 10")
                 final_text += answere_patient_dict[key]
                 final_text += " "
-            elif key in [15 , 16 , 13 , 14] and int(data[key]) == 0:
+            elif key in [13 , 14 , 11 , 12] and int(data[key]) == 0:
                 # print("in 11 , 12 , 13 , 14 " , key )
                 final_text += answere_patient_dict[key]
                 final_text += " "
-            elif key == 17 and int(data[key]) > 6 : 
+            elif key == 15 and int(data[key]) > 6 : 
                 # print("in 15 , key " , key )
                 final_text += answere_patient_dict[key]
                 final_text += " "
@@ -185,7 +186,8 @@ def process_patient_answeres(data ) :
                 pass
         # print( "final text   " , final_text )
         return final_text
-    except : 
+    except Exception as e : 
+        print("exectpitsfj           " , e )
         return None 
             
         

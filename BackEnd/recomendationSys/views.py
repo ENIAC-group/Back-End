@@ -24,13 +24,14 @@ class RecomendationSysView(viewsets.ModelViewSet):
             data[int(key)] = udata[key]
         user = request.user
         user_process_text = process_patient_answeres(data)
+        print("data              " , data )
         print("usr process text *********** " , user_process_text )
         doctor_process_text = [ d.text_info for d in DoctorPersonalityInfo.objects.all() ]
         doctor_ids =  [ d.psychiatrist for d in DoctorPersonalityInfo.objects.all() ]
         similars = getting_similarities( user_process_text , 
                                                 doctor_process_text , doctor_ids )
         print( similars )
-        similar_doctors = [ Profile.objects.filter( id = x[1].id).first() for x in similars ]
+        similar_doctors = [ Profile.objects.filter( id = x[1].id).first() for x in similars ][:3]
         if similars == None : 
             return Response({"message" : "there is no matching for this user."} , status=status.HTTP_400_BAD_REQUEST)
         return Response ( {"doctors" :DoctorProfileSerializer(similar_doctors , many=True ).data } , status=status.HTTP_200_OK)
