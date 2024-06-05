@@ -182,18 +182,6 @@ class DoctorPanelView(viewsets.ModelViewSet):
     #         existing_free_times = FreeTime.objects.filter(
     #             psychiatrist=psychiatrist, month=month, day=day)
 
-    #         Need_updating_times = []
-    #         No_Need_updating_times = []
-
-    #         for time in times_list:
-    #             try:
-    #                 existing_free_time = existing_free_times.get(time=time)
-    #                 if existing_free_time:
-    #                     No_Need_updating_times.append(time)
-    #                 else : 
-    #                     Need_updating_times.append(time)
-    #             except FreeTime.DoesNotExist:
-    #                 pass  
                             
             
 
@@ -223,16 +211,16 @@ class DoctorPanelView(viewsets.ModelViewSet):
             deleted_times = []
 
             for time in times_list:
-                try:
-                    free_time = FreeTime.objects.get(
-                        psychiatrist=psychiatrist,
-                        month=month,
-                        day=day,
-                        time=time
-                    )
-                    free_time.delete()
+                free_times = FreeTime.objects.filter(
+                    psychiatrist=psychiatrist,
+                    month=month,
+                    day=day,
+                    time=time
+                )
+                if free_times.exists():
+                    free_times.delete()
                     deleted_times.append(time)
-                except FreeTime.DoesNotExist:
+                else:
                     not_found_times.append(time)
 
             if not_found_times:
@@ -248,6 +236,17 @@ class DoctorPanelView(viewsets.ModelViewSet):
                 }, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    # def UpdateFreeTime(self, request):
+    #     delete_response = self.DeleteFreeTime(request)
+    #     if delete_response.status_code != status.HTTP_204_NO_CONTENT:
+    #         return delete_response
+
+    #     post_response = self.PostFreeTime(request)
+    #     if post_response.status_code != status.HTTP_201_CREATED:
+    #         return post_response
+
+    #     return Response({'success': 'Free times updated successfully.'}, status=status.HTTP_200_OK)
 
 
 
