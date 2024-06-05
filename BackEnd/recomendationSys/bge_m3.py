@@ -121,6 +121,7 @@ def getting_similarities( user_info , doctors_list , doctor_ids ) :
                             max_length=300, # If you don't need such a long length, you can set a smaller value to speed up the encoding process.
                             )['dense_vecs']
     embeddings_2 = model.encode(doctors_list)['dense_vecs']
+    print("herrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
     similarity = (embeddings_1 @ embeddings_2.T)
     ziped_list = list(zip(similarity, doctor_ids))
     ziped_list.sort(key=lambda x: x[0], reverse=True)

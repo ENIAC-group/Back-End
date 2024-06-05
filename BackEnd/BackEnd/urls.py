@@ -49,6 +49,7 @@ urlpatterns = [
     path('TherapyTests/' , include("TherapyTests.urls")),
     path('Rating/',include("Rating.urls")),
     path('DoctorPanel/',include("Doctorpanel.urls")),
+    path('recomSys/' ,include("recomendationSys.urls"))
 ]
 
 if settings.DEBUG:

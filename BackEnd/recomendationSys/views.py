@@ -29,7 +29,8 @@ class RecomendationSysView(viewsets.ModelViewSet):
         doctor_ids =  [ d.psychiatrist for d in DoctorPersonalityInfo.objects.all() ]
         similars = getting_similarities( user_process_text , 
                                                 doctor_process_text , doctor_ids )
-        similar_doctors = [ Profile.objects.filter( id = x[1]) for x in similars ]
+        print( similars )
+        similar_doctors = [ Profile.objects.filter( id = x[1].id).first() for x in similars ]
         if similars == None : 
             return Response({"message" : "there is no matching for this user."} , status=status.HTTP_400_BAD_REQUEST)
         return Response ( {"doctors" :DoctorProfileSerializer(similar_doctors , many=True ).data } , status=status.HTTP_200_OK)
