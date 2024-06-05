@@ -179,6 +179,7 @@ DATABASES = {
         'NAME': 'TherapyDB',
         'USER': 'postgres',
         'PASSWORD': 'Hgbr5391',
+        # 'HOST': 'postgreSQL',
         'HOST': 'localhost',
         'PORT': '5432',
         'DISABLE_SERVER_SIDE_CURSORS': True,

@@ -264,10 +264,12 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
         
     def get_record_by_id(self , request , id ) : 
+        # we consider id as patient id 
         user = request.user
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
-        ress = MedicalRecord.objects.filter(id = id )
+        # p = Pationt.objects.filter( id = id  ).first()
+        ress = MedicalRecord.objects.filter( pationt = id )
         if not ress.exists() : 
             return Response({"message" : "there is no record with this id."} , status =status.HTTP_400_BAD_REQUEST )
         item = ress.first()
@@ -280,6 +282,7 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
             'age': item.age,
             'gender': item.gender
         }
+
         if item.treatementHistory1 != None : 
             datas['treatementHistory1']= TreatementHistorySerializer(item.treatementHistory1).data
         if item.treatementHistory2 != None : 
@@ -300,7 +303,6 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
 
     def query_on_records(self , request ) : 
         query = request.data.get('name')
-        print("name   " , query)
         user = request.user
         if user.role == 'user' : 
             return Response({"message" : "ordinary user can not access this Information."} , status =status.HTTP_400_BAD_REQUEST )
@@ -313,10 +315,15 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                 scores = []
                 for obj in objects:
                     score = fuzz.ratio(query, obj.name)
+                    if score < 50:
+                        continue
+                    partial_score = fuzz.partial_ratio(query, obj.name)
+                    if partial_score < 60:
+                        continue
+
                     scores.append((obj, score))
 
                 scores.sort(key=lambda x: x[1], reverse=True)
-                print( "all scores : " ,scores )
                 
                 for obj , score in scores : 
                     if score> 45 : 
@@ -328,17 +335,18 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
                             'patient' : obj.pationt.id
                         }
                         data_list.append(datas)   
+
                 if len(data_list) ==0 : 
                     return Response({"message": "not found any similar data."}, status=status.HTTP_400_BAD_REQUEST)
             else : 
                 for obj in objects: 
-                    print( "sdflsfjdslfjdslfj ***********8" , obj.id )
                     datas = {
                         'nationalID': obj.nationalID,
                         'id': obj.id,
                         'name': obj.name,
                         'patient' : obj.pationt.id
                     }
+                    datas['gender'] = 'F' if obj.gender == MedicalRecord.GENDER_Female else 'M'
                     data_list.append(datas)   
             serializer = MedicalQueryRecord(data=data_list,many=True)
             if serializer.is_valid():
@@ -392,6 +400,14 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
         else : 
             return Response({"message" : "you do not have permission."} , status=status.HTTP_200_OK )
     
+    def retrieve_check(self , request ) : 
+        user = request.user 
+        pationt = Pationt.objects.filter(user = user).first()
+        records = self.queryset.filter( pationt = pationt )
+        if not records.exists() : 
+            return Response({"message" : False } , status=status.HTTP_200_OK )
+        return Response({"message" : True } , status=status.HTTP_200_OK )
+
     def retrieve(self , request ) : 
         user = request.user 
         pationt = Pationt.objects.filter(user = user).first()
@@ -428,15 +444,14 @@ class MedicalRecordView(viewsets.ModelViewSet ) :
     
     def delete(self , request ,id ) : 
         user = request.user 
-        pationt = Pationt.objects.filter(user =user  ).first()
-        if not pationt : 
-            return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
-        record = self.queryset.filter( id = id ).first()
-        if not record : 
-            return Response({"message" : "there is no any records with provided id."} , status=status.HTTP_400_BAD_REQUEST )
+        if user.role != 'admin' : 
+            return Response({"message" : "only admin can access this Information."} , status =status.HTTP_400_BAD_REQUEST )
+        ress = MedicalRecord.objects.filter( pationt = id )
+        if not ress.exists() : 
+            return Response({"message" : "there is no record with this pationt id."} , status =status.HTTP_400_BAD_REQUEST )
+        record = ress.first()
         record.delete()
         return Response({"message" : "record deleted successfully"} , status=status.HTTP_204_NO_CONTENT )
-
 
 
 class ThrepayTestsView(viewsets.ModelViewSet ) : 
