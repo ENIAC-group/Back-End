@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     "telegrambot",
     "Doctorpanel",
     "Rating",
+    "recomendationSys"
 ]
 SITE_ID = 1 
 

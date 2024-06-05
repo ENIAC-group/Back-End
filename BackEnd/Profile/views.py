@@ -22,4 +22,3 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
         else:
             return Response({"error": "profile_type parameter is required"}, status=400)
 
-
