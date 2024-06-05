@@ -5,10 +5,10 @@ echo "Waiting for postgresql to start..."
 echo "delete cache files *******************************************" 
 # rmdir /s /q accounts\migrations reservation\migrations telegrambot\migrations Profile\migrations counseling\migrations TherapyTests\migrations Doctorpanel\migrations Rating\migrations
 # rm -rf accounts/migrations reservation/migrations telegrambot/migrations Profile/migrations counseling/migrations TherapyTests/migrations Doctorpanel/migrations Rating/migrations
-# rmdir /s /q accounts\__pycache__ reservation\__pycache__ telegrambot\__pycache__ GoogleMeet\__pycache__ Profile\__pycache__ counseling\__pycache__ TherapyTests\__pycache__ Doctorpanel\__pycache__ Rating\__pycache__
-rm -rf accounts/__pycache__ reservation/__pycache__ telegrambot/__pycache__ GoogleMeet/__pycache__ Profile/__pycache__ counseling/__pycache__ TherapyTests/__pycache__ Doctorpanel/__pycache__ Rating/__pycache__
+# rmdir /s /q accounts\__pycache__ reservation\__pycache__ telegrambot\__pycache__ GoogleMeet\__pycache__ Profile\__pycache__ counseling\__pycache__ TherapyTests\__pycache__ Doctorpanel\__pycache__ Rating\__pycache__ recomendationSys\__pycache__
+rm -rf accounts/__pycache__ reservation/__pycache__ telegrambot/__pycache__ GoogleMeet/__pycache__ Profile/__pycache__ counseling/__pycache__ TherapyTests/__pycache__ Doctorpanel/__pycache__ Rating/__pycache__ recomendationSys/__pycache__
 echo "Migrating the databse...################################################################"
-python manage.py makemigrations accounts telegrambot counseling Profile reservation TherapyTests Rating Doctorpanel
+python manage.py makemigrations accounts telegrambot counseling Profile reservation TherapyTests Rating Doctorpanel recomendationSys
 
 # python manage.py sqlmigrate accounts 0001 > data.sql
 # python manage.py sqlmigrate telegrambot 0001 >> data.sql

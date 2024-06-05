@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Profile",
+            name="DoctorPersonalityInfo",
             fields=[
                 (
                     "id",
@@ -25,12 +25,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("description", models.TextField(blank=True, null=True)),
-                ("name", models.CharField(blank=True, max_length=50, null=True)),
-                ("image", models.ImageField(upload_to="images\\doctors\\profile_pics")),
-                ("profile_type", models.CharField(max_length=10)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("is_private", models.BooleanField(default=False)),
+                ("text_info", models.TextField(max_length=600)),
                 (
                     "psychiatrist",
                     models.OneToOneField(
