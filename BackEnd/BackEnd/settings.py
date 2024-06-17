@@ -26,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-#zdhi36fsv(lx#%swqp(l9)0dctgcmwqc__*6h5$9gk@sqxn-e"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 env = Env()
 env.read_env()
 
 # Setting Website URL
-WEBSITE_URL = 'http://localhost:8000/' #env.str('WEBSITE_URL')
+WEBSITE_URL = 'http://154.211.2.87:8000/' #env.str('WEBSITE_URL')
 # BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -135,11 +135,7 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOWED_ORIGINS = [
-        # 'CORS_ALLOW_ALL_ORIGINS',
-    "http://localhost:5173" ,
-    
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 ROOT_URLCONF = "BackEnd.urls"
