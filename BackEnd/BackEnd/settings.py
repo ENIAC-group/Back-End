@@ -39,7 +39,7 @@ EMAIL_HOST_USER = 'eniakgroupiust@gmail.com'#env.str('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = 'otawrhfscdedswzd'# '%_giw.9?5=3aNQr'#env.str('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1') 
+REDIS_HOST = os.environ.get('REDIS_HOST', '0.0.0.0') 
 # CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
 
 SESSION_COOKIE_SECURE = False
