@@ -17,20 +17,6 @@ services:
     - '5432:5432'
     networks:
       - eniac
-
-# docker inspect -f '{{range .NetworkSettings.Networks}}{{.localhost}}{{end}}' eniac
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin #you can change this
-  #   depends_on:
-  #     - db
-  #   ports:
-  #     - "5051:80"
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
-  #     PGADMIN_DEFAULT_PASSWORD: root
-  #   restart: always
-
   backend:
     build: .
     container_name: backend
@@ -53,6 +39,12 @@ services:
       - db:db
     networks:
       - eniac
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 4G
 
 networks:
   eniac:

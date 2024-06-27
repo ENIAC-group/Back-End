@@ -90,27 +90,16 @@ def process_doctor_answeres(data , gender , birth_date ) :
         print(e)    
         return None 
 
-model = BGEM3FlagModel('BAAI/bge-m3',  
-                       use_fp16=True , from_tf=True ) 
 
 # Create the model and tokenizer
 
 dir = 'model_cache'
-# if not os.path.exists(cache_dir):
-#     os.makedirs(cache_dir)
-
-# model_name = 'BAAI/bge-m3'
-# model = AutoModel.from_pretrained(model_name, cache_dir=cache_dir)
-
-# tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-
-# Create the BGEM3FlagModel instance
-# bge_model = BGEM3FlagModel(model, tokenizer, use_fp16=True)
 
 
-#  doctor_list -> 
-
-def getting_similarities( user_info , doctors_list , doctor_ids ) : 
+def getting_similarities( user_info , doctors_list , doctor_ids ) :     
+    model = BGEM3FlagModel('BAAI/bge-m3',  
+                        use_fp16=False ) 
+    
     if len ( doctors_list ) == 0 : 
         return []
     if not user_info : 
