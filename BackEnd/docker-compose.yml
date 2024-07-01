@@ -44,6 +44,8 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./telegrambot.crt:/etc/nginx/telegrambot.crt
       - ./telegrambot.key:/etc/nginx/telegrambot.key
+      - media_volume:/home/app/media
+      - shared_data:/app/data/
     ports:
       - '80:80'
       - '443:443'
