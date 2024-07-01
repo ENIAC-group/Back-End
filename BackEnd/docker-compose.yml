@@ -42,8 +42,8 @@ services:
     container_name: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - /path/to/telegrambot.crt:/etc/nginx/telegrambot.crt
-      - /path/to/telegrambot.key:/etc/nginx/telegrambot.key
+      - ./telegrambot.crt:/etc/nginx/telegrambot.crt
+      - ./telegrambot.key:/etc/nginx/telegrambot.key
     ports:
       - '80:80'
       - '443:443'
