@@ -12,7 +12,6 @@ def send_message(method, data):
 def send_daily_message(context):
     """Function to send daily message to all users.
     """
-    print("here")
     reserves = Reservation.objects.all()
     # accounts = TelegramAccount.objects.all()
     for reserve in reserves : 
@@ -20,8 +19,14 @@ def send_daily_message(context):
         d = reserve.psychiatrist
         accountP = p.telegramAccount 
         accountD = d.telegramAccount
-        doctor_msg = 'شما امروز در ساعت فلان یک ملاقات با بیمار بنام فلان دارید.'
-        patient_msg = 'شما امروز با دکتر فلانی در زمان فلان یک ملاقات دارید.'
+        p_name = p.get_fullname()
+        d_name = d.get_fullname()
+        timee = reserve.time 
+        pation_msg = f"امروز با دکتر با نام {d_name} درزمان {timee} ملاقات دارد"
+        doctor_msg = f"در ساعت {timee} با مریض بنام {p_name} ملاقات"
+        # Make sure to encode the messages using UTF-8
+        pation_msg = pation_msg.encode('utf-8')
+        doctor_msg = doctor_msg.encode('utf-8')
         send_message("sendMessage", {
             'chat_id': accountD.chat_id,
             'text': doctor_msg 
@@ -29,14 +34,13 @@ def send_daily_message(context):
 
         send_message("sendMessage", {
             'chat_id': accountP.chat_id,
-            'text': patient_msg 
+            'text': pation_msg 
         })
 
 def main():
     # Initialize the updater and job queue
     updater = Updater(token=TOKEN , use_context=True)
     job_queue = updater.job_queue
-
     # Add the daily job to the job queue
     job_queue.run_daily(send_daily_message, time(hour=8 , minute=0 , second=0), context='your_chat_id')
     # Start the bot

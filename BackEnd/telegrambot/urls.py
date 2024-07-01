@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
   path('getpost/', views.telegram_bot, name='telegram_bot'),
-  path('setwebhook/', views.setwebhook, name='setwebhook'),
+  path('setwebhook/', views.SetWebhookView.as_view({'get' : 'get'}), name='setwebhook'),
 ]
 
 # telegrambot/setwebhook/

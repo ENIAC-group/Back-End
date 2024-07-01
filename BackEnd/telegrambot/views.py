@@ -19,9 +19,9 @@ from datetime import time
 email_pattern = r"email\s*/\s*([^<>@\s]+@[^<>@\s]+\.[^<>@\s]+)"
 code_pattern = r"code\s*/\s*(\d{4})"
 
-def set_webhook(request):
-    response = requests.post(TELEGRAM_API_URL + "setWebhook?url=" + URL).json()
-    return HttpResponse(f"{response}")
+# def set_webhook(request):
+#     response = requests.post(TELEGRAM_API_URL + "setWebhook?url=" + URL).json()
+#     return HttpResponse(f"{response}")
 
 @csrf_exempt
 def telegram_bot(request):
@@ -164,9 +164,19 @@ def handle_other_commands(chat_id ,text  ):
         })
 
 
-def setwebhook(request) : 
-    if request.method == 'GET' : 
-        return requests.get(url=WEB_HOOK_URL )
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+class SetWebhookView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role == 'admin':
+            response = requests.get(url=WEB_HOOK_URL)
+            return Response(response.content)
+        else:
+            return Response({'error': 'Only admins can access this endpoint'}, status=403)
 
 
 def send_message(method, data):
