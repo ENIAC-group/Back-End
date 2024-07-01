@@ -46,6 +46,7 @@ services:
       - ./telegrambot.key:/etc/nginx/telegrambot.key
       - media_volume:/home/app/media
       - shared_data:/app/data/
+      - /etc/letsencrypt/live/eniacgroup.webhop.me:/etc/letsencrypt/live/eniacgroup.webhop.me:ro
     ports:
       - '80:80'
       - '443:443'
