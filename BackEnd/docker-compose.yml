@@ -37,6 +37,14 @@ services:
       - '8000'
     networks:
       - eniac
+
+  letsencrypt-copy:
+    image: ubuntu
+    volumes:
+      - letsencrypt-volume:/etc/nginx/letsencrypt
+      - /etc/letsencrypt/live/eniacgroup.webhop.me/:/etc/letsencrypt/live/eniacgroup.webhop.me/
+    command: cp -r /etc/letsencrypt/live/eniacgroup.webhop.me/ /etc/nginx/letsencrypt
+
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -46,25 +54,25 @@ services:
       - ./telegrambot.key:/etc/nginx/telegrambot.key
       - media_volume:/home/app/media
       - shared_data:/app/data/
-      - /etc/letsencrypt/live/eniacgroup.webhop.me/:/etc/letsencrypt/live/eniacgroup.webhop.me:ro
+      - letsencrypt-volume:/etc/nginx/letsencrypt:ro
     ports:
       - '8080:80'
       - '8443:443'
     depends_on:
       - backend
+      - letsencrypt-copy
     networks:
       - eniac
-
-
-networks:
-  eniac:
-    driver: bridge
 
 volumes:
   postgres_data:
   media_volume:
   shared_data:
+  letsencrypt-volume:
 
+networks:
+  eniac:
+    driver: bridge
   # nginx:
   #   image: nginx
   #   container_name: nginx
