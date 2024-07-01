@@ -4,7 +4,7 @@ import requests
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from .models import TelegramAccount
-from .credentials import TELEGRAM_API_URL, URL , TOKEN , WEB_HOOK_URL
+from .credentials import TELEGRAM_API_URL  , WEB_HOOK_URL
 from accounts.models import User 
 from counseling.models import Pationt, Psychiatrist
 import utils.email as email_handler 
