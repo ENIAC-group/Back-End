@@ -42,14 +42,23 @@ EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '154.211.2.87') 
 # CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
 
-SESSION_COOKIE_SECURE = False
+# SESSION_COOKIE_SECURE = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
+ALLOWED_HOSTS = ['eniacgroup.webhop.me', 'localhost']
+
+# Redirect HTTP to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# Set secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 
 # SESSION_COOKIE_DOMAIN
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES' : [
