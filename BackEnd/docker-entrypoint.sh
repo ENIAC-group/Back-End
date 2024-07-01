@@ -26,4 +26,4 @@ echo "set admin *******************************************"
 DJANGO_SUPERUSER_PASSWORD=eniac@1403 python manage.py createsuperuser --no-input --email=eniakgroupiust@gmail.com
 
 echo "Starting the server...******************************************************************"
-# python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000
