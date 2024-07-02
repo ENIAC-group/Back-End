@@ -49,8 +49,8 @@ services:
       - ./fullchain.pem:/etc/letsencrypt/live/sinaharaeeni.ir/fullchain.pem:ro
       - ./privkey.pem:/etc/letsencrypt/live/sinaharaeeni.ir/privkey.pem:ro
     ports:
-      - '80:80'
-      - '443:443'
+      - '9080:80'
+      - '8443:443'
     depends_on:
       - backend
     networks:
