@@ -47,7 +47,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
-ALLOWED_HOSTS = ['eniacgroup.webhop.me', 'localhost']
+ALLOWED_HOSTS = ['sinaharaeeni.ir', 'localhost']
 
 # Redirect HTTP to HTTPS
 SECURE_SSL_REDIRECT = True
