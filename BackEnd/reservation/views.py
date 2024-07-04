@@ -41,8 +41,12 @@ class ReservationView(viewsets.ModelViewSet ) :
         free_time = FreeTime.objects.filter(psychiatrist=doctor.first(), date=str(chosen_date), time=str(chosen_time)).first()
         if not free_time:
             return Response({'message': 'This time is not available for the chosen doctor.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        pationt = Pationt.objects.filter( user = request.user ).first()
+        
+        if request.user.role=='doctor':
+            return Response({'Message':'The role must be paitient'})
+        pationt = Pationt.objects.filter( user = request.user )
+        if not pationt.exists():
+            return Response({'Message':'This paitient dose not  exist'})
         last_reservation = Reservation.objects.filter(pationt = pationt )
         
         if last_reservation.exists() : 
