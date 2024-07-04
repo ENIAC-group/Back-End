@@ -24,6 +24,8 @@ from .serializer import GoogleMeetSerializer
 import json
 from google.apps import meet_v2 as meet
 from datetime import datetime, timedelta
+from google.auth.transport.requests import Request
+
 
 
 
@@ -42,7 +44,7 @@ class GoogleMeetCredentialsMixin:
             credentials = flow.credentials
 
         if credentials and credentials.expired:
-            credentials.refresh(request.Request())
+            credentials.refresh(Request())
 
         if credentials is not None:
             with open("token.json", "w") as f:
@@ -89,6 +91,7 @@ class GoogleMeetAPIView(APIView, GoogleMeetCredentialsMixin):
                     {"email": patient.user.email, "responseStatus": "accepted"}
                 ]
             }
+
             try:
                 service = build("calendar", "v3", credentials=credentials)
                 inserted_event = (
