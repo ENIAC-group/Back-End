@@ -70,10 +70,9 @@ class Psychiatrist(models.Model ) :
 class Pationt( models.Model ) : 
     user = models.ForeignKey(User, on_delete=models.CASCADE , unique=True )
     telegramAccount = models.OneToOneField(TelegramAccount , on_delete=models.CASCADE,null=True , blank=True ) 
-
+    
     def get_fullname(self) :
         return str(self.user.firstname) + " " + str(self.user.lastname)
-    
     
     def save(self, *args, **kwargs):
         """

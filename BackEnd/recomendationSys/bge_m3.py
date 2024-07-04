@@ -90,27 +90,16 @@ def process_doctor_answeres(data , gender , birth_date ) :
         print(e)    
         return None 
 
-model = BGEM3FlagModel('BAAI/bge-m3',  
-                       use_fp16=True ) 
 
 # Create the model and tokenizer
 
 dir = 'model_cache'
-# if not os.path.exists(cache_dir):
-#     os.makedirs(cache_dir)
-
-# model_name = 'BAAI/bge-m3'
-# model = AutoModel.from_pretrained(model_name, cache_dir=cache_dir)
-
-# tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-
-# Create the BGEM3FlagModel instance
-# bge_model = BGEM3FlagModel(model, tokenizer, use_fp16=True)
 
 
-#  doctor_list -> 
-
-def getting_similarities( user_info , doctors_list , doctor_ids ) : 
+def getting_similarities( user_info , doctors_list , doctor_ids ) :     
+    model = BGEM3FlagModel('BAAI/bge-m3',  
+                        use_fp16=False ) 
+    
     if len ( doctors_list ) == 0 : 
         return []
     if not user_info : 
@@ -121,12 +110,12 @@ def getting_similarities( user_info , doctors_list , doctor_ids ) :
                             max_length=300, # If you don't need such a long length, you can set a smaller value to speed up the encoding process.
                             )['dense_vecs']
     embeddings_2 = model.encode(doctors_list)['dense_vecs']
-    print("herrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+    
     similarity = (embeddings_1 @ embeddings_2.T)
     ziped_list = list(zip(similarity, doctor_ids))
     ziped_list.sort(key=lambda x: x[0], reverse=True)
     return ziped_list
-
+# ////////////////////
 
 def process_patient_answeres(data ) : 
     # print( "--->   " , data )
