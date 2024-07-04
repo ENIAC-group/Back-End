@@ -51,7 +51,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 ALLOWED_HOSTS = ['*']
 
 # Redirect HTTP to HTTPS
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 # Set secure cookies
 SESSION_COOKIE_SECURE = True
