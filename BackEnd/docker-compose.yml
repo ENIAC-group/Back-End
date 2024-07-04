@@ -36,7 +36,7 @@ services:
     container_name: backend
     volumes:
       - .:/app
-      # - static_volume:/app/static
+      - static_volume:/app/static
       - media_volume:/app/media
       - shared_data:/app/data/
     environment:
@@ -58,6 +58,7 @@ volumes:
   postgres_data:
   media_volume:
   shared_data:
+  static_volume:
 
 networks:
   eniac:
