@@ -44,9 +44,9 @@ class ReservationView(viewsets.ModelViewSet ) :
         
         if request.user.role=='doctor':
             return Response({'Message':'The role must be paitient'})
-        pationt = Pationt.objects.filter( user = request.user )
-        if not pationt.exists():
-            return Response({'Message':'This paitient dose not  exist'})
+        pationt = Pationt.objects.filter( user = request.user ).first()
+        # if not pationt.exists():
+        #     return Response({'Message':'This paitient dose not  exist'})
         last_reservation = Reservation.objects.filter(pationt = pationt )
         
         if last_reservation.exists() : 
