@@ -41,7 +41,7 @@ env = Env()
 env.read_env()
 
 # Setting Website URL
-WEBSITE_URL = 'http://154.211.2.87:8000/' #env.str('WEBSITE_URL')   154.211.2.87
+WEBSITE_URL = 'https://sinaharaeeni.ir/' #env.str('WEBSITE_URL')   154.211.2.87
 # BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
