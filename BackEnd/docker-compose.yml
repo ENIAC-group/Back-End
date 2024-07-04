@@ -35,27 +35,10 @@ services:
     command: ./docker-entrypoint.sh
     ports:
       - '8000:8000'
+    expose:
+      - '8000' 
     networks:
       - eniac
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #     - ./telegrambot.crt:/etc/nginx/telegrambot.crt
-  #     - ./telegrambot.key:/etc/nginx/telegrambot.key
-  #     - media_volume:/home/app/media
-  #     - shared_data:/app/data/
-  #     - ./certbot/fullchain.pem:/etc/letsencrypt/live/sinaharaeeni.ir/fullchain.pem:ro
-  #     - ./certbot/privkey.pem:/etc/letsencrypt/live/sinaharaeeni.ir/privkey.pem:ro
-  #   ports:
-  #     - '9080:80'
-  #     - '8443:443'
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - eniac
-
 
 networks:
   eniac:
@@ -99,3 +82,25 @@ volumes:
   #     /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $$!; done;'
   #   networks:
   #     - eniac
+
+
+
+    # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - ./telegrambot.crt:/etc/nginx/telegrambot.crt
+  #     - ./telegrambot.key:/etc/nginx/telegrambot.key
+  #     - media_volume:/home/app/media
+  #     - shared_data:/app/data/
+  #     - ./certbot/fullchain.pem:/etc/letsencrypt/live/sinaharaeeni.ir/fullchain.pem:ro
+  #     - ./certbot/privkey.pem:/etc/letsencrypt/live/sinaharaeeni.ir/privkey.pem:ro
+  #   ports:
+  #     - '9080:80'
+  #     - '8443:443'
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - eniac
+
