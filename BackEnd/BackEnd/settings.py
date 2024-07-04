@@ -22,16 +22,26 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Additional static files directories (optional)
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'staticfiles'),
+# ]
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-#zdhi36fsv(lx#%swqp(l9)0dctgcmwqc__*6h5$9gk@sqxn-e"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 env = Env()
 env.read_env()
 
 # Setting Website URL
-WEBSITE_URL = 'http://154.211.2.87:8000/' #env.str('WEBSITE_URL')   154.211.2.87
+WEBSITE_URL = 'https://sinaharaeeni.ir/' #env.str('WEBSITE_URL')   154.211.2.87
 # BASE_URL = 'http://localhost:8000/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -40,17 +50,24 @@ EMAIL_HOST_PASSWORD = 'otawrhfscdedswzd'# '%_giw.9?5=3aNQr'#env.str('EMAIL_HOST_
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 REDIS_HOST = os.environ.get('REDIS_HOST', '154.211.2.87') 
-# CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:5173' , 
+    'http://127.0.0.1:5173' , 
+    'https://sinaharaeeni.ir',
+]
 
 # SESSION_COOKIE_SECURE = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
-ALLOWED_HOSTS = ['sinaharaeeni.ir', 'localhost']
+# ALLOWED_HOSTS = ['sinaharaeeni.ir', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 # Redirect HTTP to HTTPS
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 # Set secure cookies
 SESSION_COOKIE_SECURE = True
@@ -222,7 +239,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "static/"
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
