@@ -27,32 +27,6 @@ from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 
 
-
-def authorize() -> Credentials:
-        """Ensure valid credentials for calling the Meet REST API."""
-        credentials = None
-
-        if os.path.exists('token.json'):
-            credentials = Credentials.from_authorized_user_file('token.json')
-
-        if credentials is None:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                GOOGLE_CLIENT_SECRETS_FILE,SCOPES)
-            flow.run_local_server(port=0)
-            credentials = flow.credentials
-
-        if credentials and credentials.expired:
-            credentials.refresh(Request())
-
-        if credentials is not None:
-            with open("token.json", "w") as f:
-                f.write(credentials.to_json())
-
-        return credentials
-
-authorize()
-
-
 class GoogleMeetCredentialsMixin:
     def authorize(self,request) -> Credentials:
         """Ensure valid credentials for calling the Meet REST API."""

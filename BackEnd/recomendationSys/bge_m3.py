@@ -1,7 +1,7 @@
-from FlagEmbedding import BGEM3FlagModel
+# from FlagEmbedding import BGEM3FlagModel
 import numpy as np
 import datetime
-from transformers import AutoModel, AutoTokenizer
+# from transformers import AutoModel, AutoTokenizer
 
 # Setting use_fp16 to True speeds up computation with a slight performance degradation
 question_dict = {
@@ -95,22 +95,50 @@ def process_doctor_answeres(data , gender , birth_date ) :
 
 dir = 'model_cache'
 
+url = "https://api.deepinfra.com/v1/openai/embeddings"
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer tIuYaFZQRIh0cjOJlENCly2UBNL4zPPM"
+}
+
+def get_embeddings(sentences):
+    import requests
+    # Prepare the payload
+    data = {
+        "input": sentences,
+        "model": "BAAI/bge-m3",
+        "encoding_format": "float"
+    }
+    
+    # Send the POST request
+    response = requests.post(url, headers=headers, json=data)
+    response_data = response.json()
+    
+    # Extract the embeddings
+    embeddings = [item['embedding'] for item in response_data['data']]
+    return embeddings
+
+
+
 
 def getting_similarities( user_info , doctors_list , doctor_ids ) :     
-    model = BGEM3FlagModel('BAAI/bge-m3',  
-                        use_fp16=False ) 
+    # model = BGEM3FlagModel('BAAI/bge-m3',  
+    #                     use_fp16=False ) 
     
     if len ( doctors_list ) == 0 : 
         return []
     if not user_info : 
         return []
     
-    embeddings_1 = model.encode(user_info, 
-                            batch_size=12, 
-                            max_length=300, # If you don't need such a long length, you can set a smaller value to speed up the encoding process.
-                            )['dense_vecs']
-    embeddings_2 = model.encode(doctors_list)['dense_vecs']
-    
+    # embeddings_1 = model.encode(user_info, 
+    #                         batch_size=12, 
+    #                         max_length=300, # If you don't need such a long length, you can set a smaller value to speed up the encoding process.
+    #                         )['dense_vecs']
+
+    embeddings_1 = get_embeddings(user_info)
+    embeddings_1 = np.array(embeddings_1)
+    embeddings_2 = get_embeddings(doctors_list)
+    embeddings_2 = np.array(embeddings_2) 
     similarity = (embeddings_1 @ embeddings_2.T)
     ziped_list = list(zip(similarity, doctor_ids))
     ziped_list.sort(key=lambda x: x[0], reverse=True)
