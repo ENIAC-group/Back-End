@@ -1,0 +1,23 @@
+remaining_registration_tries = project_variables.MAX_VERIFICATION_TRIES - registration_tries
+    
+    if show_text:
+        if remaining_registration_tries < project_variables.MAX_VERIFICATION_TRIES:
+            remaining_text = f'تا کنون به تعداد {registration_tries}بار، ' \
+                             f'درخواست ثبت نام داشته اید. به تعداد {remaining_registration_tries} ' \
+                             f'دفعۀ دیگر میتوانید برای دریافت کد تایید، درخواست نمایید. ' 
+        else:
+            remaining_text = 'به سقف مجاز برای ثبت درخواست کد تایید رسیده اید. ' \
+                            'پس از 12 ساعت انتظار، می توانید برای باری دیگر، برای دریافت کد تایید، درخواست نمایید.'
+    else:
+        remaining_text = ''
+
+
+
+# remaining_verification_tries = project_variables.MAX_VERIFICATION_TRIES - verification_tries
+    # if remaining_verification_tries < project_variables.MAX_VERIFICATION_TRIES:
+    #     remaining_text = f'تا کنون به تعداد {verification_tries}بار، ' \
+    #                      f'درخواست تغییر رمز عبور داشته اید. به تعداد {remaining_verification_tries} ' \
+    #                      f'دفعۀ دیگر می توانید برای دریافت کد تایید، درخواست نمایید. ' 
+    # else:
+    #     remaining_text = 'به سقف مجاز برای ثبت درخواست کد تایید رسیده اید. ' \
+    #                      'پس از 12 ساعت انتظار، می توانید برای باری دیگر، برای دریافت کد تایید، درخواست نمایید.'
