@@ -10,11 +10,11 @@ services:
       - shared_data:/app/data/
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Hgbr5391
-      - POSTGRES_DB=TherapyDB
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - '5432:5432'
+      - '127.0.0.1:5432:5432'
     networks:
       - eniac
 
@@ -28,12 +28,12 @@ services:
       - static_volume:/app/static
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Hgbr5391
-      - POSTGRES_DB=TherapyDB
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     depends_on:
       - db
-    command: ./docker-entrypoint.sh
+    # command: ./docker-entrypoint.sh
     ports:
       - '8000:8000'
     expose:

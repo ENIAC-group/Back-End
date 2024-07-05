@@ -201,7 +201,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'TherapyDB',
         'USER': 'postgres',
-        'PASSWORD': 'Hgbr5391',
+        'PASSWORD': 'Hgbr@@5391',
         'HOST': 'postgreSQL',
         # 'HOST': 'localhost',
         'PORT': '5432',
