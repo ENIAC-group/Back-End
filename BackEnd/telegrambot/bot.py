@@ -22,15 +22,20 @@ def send_daily_message(context):
         p_name = p.get_fullname()
         d_name = d.get_fullname()
         timee = reserve.time 
-        pation_msg = f"امروز با دکتر با نام {d_name} درزمان {timee} ملاقات دارد"
+        # pation_msg = f"امروز با دکتر با نام {d_name} درزمان {timee} ملاقات دارد"
+        pation_msg = f"شما امروز با دکتر :\n"
+        pation_msg += f"{d_name}\n"
+        pation_msg += "در ساعت :\n"
+        pation_msg += f"{reserve.time}\n"
+        pation_msg += f"وقت ملاقات دارید."
         doctor_msg = f"در ساعت {timee} با مریض بنام {p_name} ملاقات"
         # Make sure to encode the messages using UTF-8
         pation_msg = pation_msg.encode('utf-8')
         doctor_msg = doctor_msg.encode('utf-8')
-        send_message("sendMessage", {
-            'chat_id': accountD.chat_id,
-            'text': doctor_msg 
-        })
+        # send_message("sendMessage", {
+        #     'chat_id': accountD.chat_id,
+        #     'text': doctor_msg 
+        # })
 
         send_message("sendMessage", {
             'chat_id': accountP.chat_id,
