@@ -23,5 +23,5 @@ COPY . /app/
 COPY data.sql data/
 EXPOSE 8000
 
-CMD ["./docker-entrypoint.sh"]
+# CMD ["./docker-entrypoint.sh"]
 # CMD [ "python" , "manage.py" , "runserver" ]
