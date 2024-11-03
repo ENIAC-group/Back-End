@@ -9,7 +9,4 @@ urlpatterns = [
     # path('doctor/update-free-time/', DoctorPanelView.as_view({'put':'UpdateFreeTime'})),
     path('doctor/delete-free-time/', DoctorPanelView.as_view({'post':'DeleteFreeTime'})),
 
-
-
-
 ]

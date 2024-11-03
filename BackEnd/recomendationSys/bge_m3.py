@@ -143,6 +143,7 @@ def getting_similarities( user_info , doctors_list , doctor_ids ) :
     ziped_list = list(zip(similarity, doctor_ids))
     ziped_list.sort(key=lambda x: x[0], reverse=True)
     return ziped_list
+
 # ////////////////////
 
 def process_patient_answeres(data ) : 
